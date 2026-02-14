@@ -3,36 +3,44 @@ import { RecoveryActivity, RecoveryPhase, StoreItem } from './types';
 
 export const COLORS = {
   pink: { 
-    primary: '#F9A8D4', // Blush Pink
+    primary: '#EC4899', // Slightly deeper pink for visibility
     bg: '#FFF5F7', 
-    border: '#FCE7F3', 
+    border: '#F9A8D4', 
     text: '#831843', 
-    ring: 'ring-pink-100',
+    ring: 'ring-pink-200',
     light: '#FDF2F8'
   },
   green: { 
-    primary: '#A7F3D0', // Muted Sage
+    primary: '#10B981', // More vibrant emerald for visibility
     bg: '#F0FDF4', 
-    border: '#DCFCE7', 
+    border: '#A7F3D0', 
     text: '#064E3B', 
-    ring: 'ring-emerald-100',
+    ring: 'ring-emerald-200',
     light: '#ECFDF5'
   },
   blue: { 
-    primary: '#BAE6FD', // Powder Blue
+    primary: '#0EA5E9', // Stronger sky blue
     bg: '#F0F9FF', 
-    border: '#E0F2FE', 
+    border: '#BAE6FD', 
     text: '#0C4A6E', 
-    ring: 'ring-sky-100',
+    ring: 'ring-sky-200',
     light: '#F0F9FF'
   },
   grey: { 
-    primary: '#CBD5E1', // Soft Grey
+    primary: '#64748B', // Medium slate
     bg: '#F8FAFC', 
-    border: '#F1F5F9', 
+    border: '#CBD5E1', 
     text: '#334155', 
-    ring: 'ring-slate-100',
+    ring: 'ring-slate-200',
     light: '#F8FAFC'
+  },
+  yellow: { 
+    primary: '#F59E0B', // Warm amber/yellow
+    bg: '#FFFBEB', 
+    border: '#FBBF24', 
+    text: '#92400E', 
+    ring: 'ring-amber-200',
+    light: '#FFFBEB'
   }
 };
 

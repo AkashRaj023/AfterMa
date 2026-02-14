@@ -1,6 +1,6 @@
 
 export type DeliveryType = 'normal' | 'c-section';
-export type ThemeAccent = 'pink' | 'green' | 'blue' | 'grey';
+export type ThemeAccent = 'pink' | 'green' | 'blue' | 'grey' | 'yellow';
 export type RecoveryPhase = 'Stabilize' | 'Strengthen' | 'Restore' | 'Rebuild Confidence';
 export type RecoveryPace = 'gentle' | 'moderate';
 export type Language = 'english' | 'hindi';
