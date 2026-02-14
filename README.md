@@ -5,7 +5,6 @@ AfterMa is a mother-centric postpartum recovery and emotional wellness web platf
 
 Unlike generic AI chat tools, AfterMa delivers structured recovery systems, measurable progress tracking, secure role-based access, and clinically aligned care pathways.
 
----
 
 ## 🌸 Core Modules
 
@@ -19,7 +18,6 @@ Adaptive recovery pathway based on delivery type (Normal / C-Section) including:
 - Guided physiotherapy routines
 - Weekly progress checkpoints
 
----
 
 ### 🤝 Care Connect
 Integrated support hub combining:
@@ -29,7 +27,6 @@ Integrated support hub combining:
 - Appointment tracking (Upcoming / Completed / Cancelled)
 - Verified Indian helpline access (e.g., Kiran 1800-599-0019)
 
----
 
 ### 🚨 SOS Emergency System
 - Two-step confirmation (prevents accidental trigger)
@@ -37,7 +34,6 @@ Integrated support hub combining:
 - Emergency contact alert logic
 - Escalation support flow
 
----
 
 ### 👤 Profile & Settings
 - Mother & caregiver details
