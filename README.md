@@ -1,20 +1,47 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# AfterMa  
+### Safe Healing Journey for Mothers
 
-# Run and deploy your AI Studio app
+AfterMa is a mother-centric postpartum recovery and emotional wellness web platform designed for women in the first 0–12 months after childbirth. It combines structured physical recovery guidance, mental health tracking, community care, and professional support within a safe and culturally sensitive environment.
 
-This contains everything you need to run your app locally.
+Unlike generic AI chat tools, AfterMa delivers structured recovery systems, measurable progress tracking, secure role-based access, and clinically aligned care pathways.
 
-View your app in AI Studio: https://ai.studio/apps/drive/14JFUvpNDMfV9PxvZgSY6eH1nLMq8SWMS
+---
 
-## Run Locally
+## 🌸 Core Modules
 
-**Prerequisites:**  Node.js
+### 🧘 Recovery Journey
+Adaptive recovery pathway based on delivery type (Normal / C-Section) including:
+- Pelvic floor rehabilitation (Kegel tracking)
+- Diastasis recti monitoring
+- C-section / perineal healing logs
+- Pain score tracking
+- Mood & sleep monitoring
+- Guided physiotherapy routines
+- Weekly progress checkpoints
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 🤝 Care Connect
+Integrated support hub combining:
+- Doctor consultation booking
+- Lactation consultant scheduling
+- Moderated peer support circles
+- Appointment tracking (Upcoming / Completed / Cancelled)
+- Verified Indian helpline access (e.g., Kiran 1800-599-0019)
+
+---
+
+### 🚨 SOS Emergency System
+- Two-step confirmation (prevents accidental trigger)
+- Helpline display
+- Emergency contact alert logic
+- Escalation support flow
+
+---
+
+### 👤 Profile & Settings
+- Mother & caregiver details
+- Delivery type selection
+- Privacy controls
+- Caregiver visibility permissions
+- Theme customization (Pink, Green, Blue, White/Grey – Light Mode)
