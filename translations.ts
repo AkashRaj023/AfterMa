@@ -61,7 +61,7 @@ export const translations: any = {
       durationLabel: "Duration"
     },
     mental: {
-      title: "Emotional Haven",
+      title: "Emotional Heaven",
       subtitle: "A safe, non-judgmental space for your mind to rest.",
       tasksTitle: "Daily Comfort Tasks",
       hugTitle: "Gentle Hug for You",
@@ -258,7 +258,7 @@ export const translations: any = {
       durationLabel: "अवधि"
     },
     mental: {
-      title: "भावनात्मक आश्रय",
+      title: "भावनात्मक स्वर्ग",
       subtitle: "आपके मन को आराम देने के लिए एक सुरक्षित, निर्णय-मुक्त स्थान।",
       tasksTitle: "दैनिक आराम के कार्य",
       hugTitle: "आपके लिए एक प्यारा आलिंगन",
@@ -349,7 +349,7 @@ export const translations: any = {
       },
       lookFeel: "लुक और फील",
       accent: "एप्लीकेशन एक्सेंट कलर",
-      language: "इंटरफेस भाषा",
+      language: "Interface Language",
       apply: "कस्टमाइजेशन लागू करें",
       journey: {
         title: "रिकवरी की ट्यूनिंग",
@@ -385,7 +385,7 @@ export const translations: any = {
         name: "पूरा नाम",
         relation: "संबंध",
         phone: "मोबाइल नंबर",
-        sharingTitle: "डेटा संप्रभुता",
+        sharingTitle: "देटा संप्रभुता",
         sharingSub: "चुनें कि आपकी यात्रा के कौन से पहलू आपके सहायक को दिखाई देंगे।",
         canMood: "मूड के रुझान देख सकते हैं",
         canPhys: "शारीरिक प्रगति देख सकते हैं",
