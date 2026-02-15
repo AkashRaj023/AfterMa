@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { StoreItem, CartItem, UserProfile } from '../types';
 import { STORE_ITEMS, COLORS } from '../constants';
-import { ShoppingCart, Star, Plus, Minus, Package, ChevronRight, Filter, X } from 'lucide-react';
+import { ShoppingBag, Star, Plus, Minus, Package, ChevronRight, Filter, X, ShieldCheck, Heart, Sparkles } from 'lucide-react';
 import { translations } from '../translations';
 
 interface MomKartProps { profile: UserProfile; }
@@ -51,148 +51,170 @@ const MomKart: React.FC<MomKartProps> = ({ profile }) => {
     : STORE_ITEMS.filter(item => item.category === activeCategory);
 
   return (
-    <div className="space-y-6 animate-in max-w-7xl mx-auto px-1 md:px-0">
-      {/* Category Strip - Sticky & Interactive */}
+    <div className="animate-in w-full -mt-4 lg:-mt-8 pb-32">
+      {/* Apple-style Liquid Glass Sub-Navbar - Sticky but refined */}
       <div 
-        className="bg-white/90 backdrop-blur-md border-b border-gray-100 -mx-4 lg:-mx-8 px-4 lg:px-8 py-3 overflow-x-auto scrollbar-hide flex items-center gap-5 sticky top-[64px] lg:top-[80px] z-[45] shadow-[0_10px_30px_rgba(0,0,0,0.02)] transition-all"
+        className="bg-white/60 backdrop-blur-3xl border-b border-white/40 px-6 lg:px-12 py-4 flex items-center gap-8 sticky top-[64px] lg:top-[80px] z-[45] shadow-[0_4px_30px_rgba(0,0,0,0.03)] -mx-4 lg:-mx-8 transition-all duration-500"
       >
-        <div className="flex items-center gap-2 text-xs font-black text-slate-400 mr-2 shrink-0 uppercase tracking-widest">
-          <Filter size={14} /> <span>Filter</span>
+        <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.25em] border-r border-slate-200/50 pr-8 shrink-0">
+          <Filter size={14} className="text-slate-300" strokeWidth={2.5} />
+          <span>Curations</span>
         </div>
-        <div className="flex items-center gap-3">
+        
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1">
           {CATEGORIES.map(cat => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`whitespace-nowrap px-5 py-2 rounded-xl text-xs font-bold transition-all border active:scale-95 ${
+              className={`whitespace-nowrap px-6 py-2 rounded-full text-xs font-bold transition-all duration-300 active:scale-95 ${
                 activeCategory === cat 
-                ? 'bg-slate-900 text-white border-slate-900 shadow-lg translate-y-[-1px]' 
-                : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300 hover:bg-slate-50'
+                ? 'bg-slate-900 text-white shadow-2xl scale-[1.05]' 
+                : 'bg-white/50 text-slate-500 hover:bg-white hover:text-slate-900 border border-white/60'
               }`}
             >
               {cat}
             </button>
           ))}
         </div>
-        <div className="ml-auto shrink-0 flex items-center gap-4">
+
+        <div className="shrink-0 flex items-center gap-6 border-l border-slate-200/50 pl-8">
           <button 
             onClick={() => setShowCart(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all text-xs font-black shadow-sm group active:scale-95"
+            className="flex items-center gap-3 px-6 py-3 rounded-full bg-slate-900/5 hover:bg-slate-900/10 text-slate-900 transition-all text-xs font-bold active:scale-95 group shadow-sm border border-white"
           >
-            <ShoppingCart size={16} className="group-hover:rotate-12 transition-transform" />
-            <span className="hidden sm:inline">My Basket</span>
-            <span 
-              className="bg-slate-900 text-white w-6 h-6 flex items-center justify-center rounded-full text-[10px] ml-1 transition-transform group-hover:scale-110"
-              style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.text})` }}
+            <ShoppingBag size={18} className="text-slate-400 group-hover:text-slate-900 transition-colors" />
+            <span className="hidden md:inline">Basket</span>
+            <div 
+              className="text-white w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-bold shadow-xl"
+              style={{ backgroundColor: theme.primary }}
             >
               {cart.length}
-            </span>
+            </div>
           </button>
         </div>
       </div>
 
-      {/* Hero Banner */}
-      <div 
-        className="relative h-40 md:h-56 rounded-[2rem] overflow-hidden bg-gradient-to-br from-white to-slate-50 border border-slate-100 shadow-sm flex items-center p-8 md:p-14 transition-all hover:shadow-xl group"
-      >
-        <div className="relative z-10 max-w-xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-pink-50 text-pink-500 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm">
-            MomKart Curated
-          </div>
-          <h2 className="text-2xl md:text-4xl font-black text-slate-800 leading-tight group-hover:translate-x-1 transition-transform">{t.momkart.title}</h2>
-          <p className="text-sm text-slate-400 font-medium italic max-w-md">{t.momkart.subtitle}</p>
-        </div>
-        <div className="absolute right-0 top-0 h-full w-1/2 opacity-20 pointer-events-none group-hover:opacity-30 transition-opacity">
-           <Package size={240} className="absolute right-[-40px] top-[-20px] text-slate-300 rotate-12 group-hover:rotate-6 transition-transform" />
-        </div>
-        <div 
-          className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none" 
-          style={{ background: `radial-gradient(circle at center, ${theme.primary}, transparent)` }} 
-        />
-      </div>
-
-      {/* Product Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-8 pb-10">
-        {filteredItems.map(item => (
-          <div key={item.id} className="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] transition-all duration-500 group flex flex-col h-full overflow-hidden relative active:scale-[0.98]">
-            <div className="relative aspect-[4/5] bg-slate-50 overflow-hidden">
-              <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
-              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur shadow-md px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition-transform group-hover:translate-y-[-2px]">
-                <Star size={12} className="text-amber-400 fill-amber-400" />
-                <span className="text-[11px] font-black text-slate-800">{item.rating}</span>
-              </div>
+      <div className="max-w-7xl mx-auto space-y-14 mt-14 px-0 md:px-2">
+        {/* Modern Apple Satin Hero Section */}
+        <div className="relative rounded-[3.5rem] overflow-hidden bg-gradient-to-br from-white via-white to-slate-50/50 border border-white/60 shadow-[0_20px_60px_rgba(0,0,0,0.02)] p-12 lg:p-20 group">
+          <div className="relative z-10 max-w-2xl space-y-8">
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-slate-900/5 rounded-xl border border-white shadow-inner"><Sparkles size={18} className="text-slate-400" /></div>
+              <span className="text-[10px] font-bold uppercase text-slate-400 tracking-[0.3em]">Ethically Sourced & Vetted</span>
             </div>
-            <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-              <div className="space-y-1.5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.brand}</p>
-                <h3 className="text-sm font-black text-slate-800 line-clamp-2 leading-tight h-10 group-hover:text-slate-900 transition-colors">{item.name}</h3>
-                <p className="text-[11px] text-slate-400 font-medium line-clamp-1 italic">"{item.description}"</p>
-              </div>
-              <div className="flex items-center justify-between pt-2">
-                <div className="space-y-0.5">
-                  <span className="text-xl font-black text-slate-900 tracking-tight">₹{item.price}</span>
-                  <p className="text-[9px] text-emerald-500 font-black uppercase tracking-tighter">Verified Choice</p>
+            <h2 className="text-4xl lg:text-7xl font-bold text-slate-900 tracking-tight leading-[1.05]">
+              Healing Essentials <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-600 to-slate-400">for New Mothers.</span>
+            </h2>
+            <p className="text-slate-500 text-base lg:text-xl font-medium max-w-xl leading-relaxed opacity-85 italic">
+              "Curating only the safest, clinically-recommended recovery and baby-care products for your delicate sanctuary."
+            </p>
+            <div className="flex flex-wrap items-center gap-10 pt-6">
+               <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-600/80">
+                 <div className="p-2 bg-emerald-50 rounded-2xl border border-emerald-100/50 shadow-inner"><ShieldCheck size={20} /></div>
+                 Clinical Grade
+               </div>
+               <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-pink-500/80">
+                 <div className="p-2 bg-pink-50 rounded-2xl border border-pink-100/50 shadow-inner"><Heart size={20} /></div>
+                 Gentle Care
+               </div>
+            </div>
+          </div>
+          <div className="absolute right-[-5%] top-[-10%] h-[120%] w-2/5 opacity-[0.02] pointer-events-none flex items-center justify-center translate-x-12 group-hover:scale-110 group-hover:rotate-6 transition-all duration-[3000ms] ease-in-out">
+             <Package size={600} className="text-slate-900 -rotate-12" />
+          </div>
+        </div>
+
+        {/* Cohesive Apple Grid Layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+          {filteredItems.map(item => (
+            <div key={item.id} className="bg-white rounded-[3rem] border border-white/60 shadow-[0_10px_40px_rgba(0,0,0,0.02)] hover:shadow-[0_40px_100px_rgba(0,0,0,0.08)] transition-all duration-700 group flex flex-col h-full overflow-hidden relative hover:translate-y-[-12px]">
+              <div className="relative aspect-[4/5] bg-slate-50/50 overflow-hidden">
+                <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-in-out" />
+                <div className="absolute top-6 right-6 bg-white/70 backdrop-blur-xl px-4 py-2 rounded-full flex items-center gap-2 shadow-xl border border-white/40">
+                  <Star size={14} className="text-amber-400 fill-amber-400" />
+                  <span className="text-[12px] font-bold text-slate-900">{item.rating}</span>
                 </div>
-                <button 
-                  onClick={() => addToCart(item)}
-                  className="p-3 rounded-2xl text-white transition-all active:scale-90 shadow-lg hover:shadow-xl hover:translate-y-[-2px]"
-                  style={{ 
-                    backgroundColor: theme.primary, 
-                    background: `linear-gradient(135deg, ${theme.primary}, ${theme.text})` 
-                  }}
-                >
-                  <Plus size={20} strokeWidth={3} />
-                </button>
+              </div>
+              
+              <div className="p-10 flex-1 flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">{item.brand}</p>
+                    <span className="text-[9px] font-bold bg-slate-50 text-slate-400 px-3 py-1 rounded-lg uppercase tracking-widest border border-slate-100/50">{item.category}</span>
+                  </div>
+                  <h3 className="text-lg lg:text-xl font-bold text-slate-900 leading-tight h-12 line-clamp-2">{item.name}</h3>
+                  <p className="text-xs text-slate-400 font-medium leading-relaxed opacity-75 italic">"{item.description}"</p>
+                </div>
+                
+                <div className="flex items-center justify-between pt-10 mt-8 border-t border-slate-50">
+                  <div className="flex flex-col">
+                    <span className="text-3xl font-bold text-slate-900 tracking-tighter leading-none">₹{item.price}</span>
+                    <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-1.5 opacity-80">Verified Brand</span>
+                  </div>
+                  <button 
+                    onClick={() => addToCart(item)}
+                    className="h-16 w-16 rounded-full text-white transition-all duration-500 active:scale-90 shadow-2xl hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center justify-center group/btn relative overflow-hidden"
+                    style={{ backgroundColor: theme.primary, background: `linear-gradient(135deg, ${theme.primary}, ${theme.text}dd)` }}
+                  >
+                    <Plus size={28} strokeWidth={3} className="relative z-10 group-hover/btn:rotate-90 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* Cart Drawer */}
+      {/* Modern Slide-out Basket - Frosted Liquid Glass */}
       {showCart && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex justify-end">
-          <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-500 rounded-l-[3rem] overflow-hidden">
-            <div className="p-8 flex justify-between items-center border-b border-slate-50 bg-slate-50/50">
-              <div className="flex items-center gap-4">
-                 <div className="p-3 bg-white rounded-2xl shadow-md text-slate-800 animate-bounce-slow">
-                   <ShoppingCart size={24} />
+        <div className="fixed inset-0 z-[100] bg-slate-900/30 backdrop-blur-md flex justify-end animate-in fade-in duration-500">
+          <div className="w-full max-w-md bg-white/80 backdrop-blur-[60px] h-full shadow-[0_0_100px_rgba(0,0,0,0.1)] flex flex-col animate-in slide-in-from-right duration-500 rounded-l-[4rem] border-l border-white/50 overflow-hidden">
+            <div className="p-12 flex justify-between items-center border-b border-white/40">
+              <div className="flex items-center gap-6">
+                 <div className="p-5 bg-slate-900/5 rounded-3xl text-slate-400 shadow-inner border border-white">
+                   <ShoppingBag size={32} />
                  </div>
-                 <h3 className="text-2xl font-black text-slate-800">{t.momkart.basket}</h3>
+                 <div className="space-y-1">
+                   <h3 className="text-3xl font-bold text-slate-900 tracking-tight">Your Bag</h3>
+                   <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">{cart.length} Recovery Essentials</p>
+                 </div>
               </div>
-              <button onClick={() => setShowCart(false)} className="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all">
-                <X size={28} />
+              <button onClick={() => setShowCart(false)} className="p-3 text-slate-300 hover:text-slate-900 hover:bg-white/80 rounded-full transition-all shadow-sm">
+                <X size={32} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-5 scrollbar-hide">
+            
+            <div className="flex-1 overflow-y-auto p-10 space-y-8 scrollbar-hide">
               {cart.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center opacity-40 space-y-4 grayscale">
-                  <div className="p-10 bg-slate-50 rounded-full"><Package size={80} className="text-slate-300" /></div>
-                  <div className="space-y-1">
-                    <p className="font-black text-slate-800 text-lg">Your basket is resting</p>
-                    <p className="text-sm text-slate-400 font-medium">Add healing essentials to get started.</p>
+                <div className="h-full flex flex-col items-center justify-center text-center opacity-40 space-y-10">
+                  <div className="p-16 bg-white/40 rounded-full shadow-inner border border-white"><Package size={100} className="text-slate-200" /></div>
+                  <div className="space-y-3">
+                    <p className="font-bold text-slate-900 text-2xl tracking-tight">Your bag is currently light</p>
+                    <p className="text-base text-slate-400 font-medium italic">Explore our healing collections for you and your baby.</p>
                   </div>
                 </div>
               ) : (
                 cart.map(item => (
-                  <div key={item.id} className="flex gap-5 p-5 rounded-[2rem] border border-slate-100 bg-white shadow-sm hover:shadow-md transition-all group">
-                    <div className="w-24 h-24 rounded-2xl overflow-hidden bg-slate-50 shrink-0 border border-slate-50">
-                       <img src={item.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform" alt={item.name} />
+                  <div key={item.id} className="flex gap-8 p-8 rounded-[3rem] bg-white border border-white shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-xl transition-all group relative overflow-hidden">
+                    <div className="w-28 h-28 rounded-2xl overflow-hidden bg-slate-50 shrink-0 border border-white/80 shadow-inner">
+                       <img src={item.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.name} />
                     </div>
-                    <div className="flex-1 flex flex-col justify-between py-1">
-                      <div className="flex justify-between items-start gap-2">
-                         <div className="space-y-1">
-                           <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{item.brand}</p>
-                           <h4 className="font-black text-slate-800 text-sm line-clamp-1">{item.name}</h4>
+                    <div className="flex-1 flex flex-col justify-between py-1 relative z-10">
+                      <div className="flex justify-between items-start gap-4">
+                         <div className="space-y-1.5">
+                           <h4 className="font-bold text-slate-900 text-base line-clamp-1 leading-tight tracking-tight">{item.name}</h4>
+                           <p className="text-[10px] font-bold uppercase text-slate-300 tracking-[0.25em]">{item.brand}</p>
                          </div>
-                         <button onClick={() => removeFromCart(item.id)} className="text-slate-300 hover:text-red-500 transition-colors p-1"><X size={18} /></button>
+                         <button onClick={() => removeFromCart(item.id)} className="text-slate-200 hover:text-red-500 transition-colors p-1"><X size={20} /></button>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-black text-slate-900 text-lg tracking-tight">₹{item.price}</span>
-                        <div className="flex items-center gap-4 bg-slate-100 px-3 py-1.5 rounded-2xl shadow-inner">
-                          <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-400 hover:text-slate-900 transition-colors"><Minus size={16} strokeWidth={3} /></button>
-                          <span className="text-sm font-black min-w-[16px] text-center text-slate-700">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-400 hover:text-slate-900 transition-colors"><Plus size={16} strokeWidth={3} /></button>
+                      <div className="flex items-center justify-between mt-6">
+                        <span className="font-bold text-slate-900 text-xl tracking-tighter">₹{item.price}</span>
+                        <div className="flex items-center gap-5 bg-slate-50/50 backdrop-blur-sm px-5 py-2.5 rounded-full border border-white/60 shadow-inner">
+                          <button onClick={() => updateQuantity(item.id, -1)} className="text-slate-300 hover:text-slate-900 transition-colors"><Minus size={18} strokeWidth={3} /></button>
+                          <span className="text-base font-bold min-w-[20px] text-center text-slate-900">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, 1)} className="text-slate-300 hover:text-slate-900 transition-colors"><Plus size={18} strokeWidth={3} /></button>
                         </div>
                       </div>
                     </div>
@@ -200,23 +222,35 @@ const MomKart: React.FC<MomKartProps> = ({ profile }) => {
                 ))
               )}
             </div>
+
             {cart.length > 0 && (
-              <div className="p-8 border-t border-slate-100 bg-slate-50 space-y-8 rounded-t-[3rem] shadow-2xl">
-                <div className="space-y-4">
-                  <div className="flex justify-between text-sm font-bold text-slate-500"><span>Subtotal</span><span>₹{cartSubtotal}</span></div>
-                  <div className="flex justify-between items-center text-sm font-bold">
-                    <div className="flex items-center gap-2"><span className="text-slate-500">Express Delivery</span><button onClick={() => setExpressDelivery(!expressDelivery)} className={`w-10 h-6 rounded-full relative transition-all shadow-inner ${expressDelivery ? 'bg-emerald-500' : 'bg-slate-300'}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${expressDelivery ? 'left-5' : 'left-1'}`} /></button></div>
-                    <span className={expressDelivery ? 'text-slate-800' : 'text-emerald-500'}>{expressDelivery ? '+₹49' : 'Free'}</span>
+              <div className="p-12 border-t border-white/40 bg-white/40 space-y-10 rounded-t-[4rem] shadow-[0_-20px_80px_rgba(0,0,0,0.04)]">
+                <div className="space-y-5">
+                  <div className="flex justify-between text-base font-bold text-slate-400"><span>Subtotal</span><span className="text-slate-900 tracking-tight">₹{cartSubtotal}</span></div>
+                  <div className="flex justify-between items-center text-base font-bold text-slate-400">
+                    <div className="flex items-center gap-4">
+                      <span>Express Care</span>
+                      <button 
+                        onClick={() => setExpressDelivery(!expressDelivery)} 
+                        className={`w-12 h-7 rounded-full relative transition-all duration-500 shadow-inner ${expressDelivery ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                      >
+                        <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-500 shadow-xl ${expressDelivery ? 'left-6' : 'left-1'}`} />
+                      </button>
+                    </div>
+                    <span className={expressDelivery ? 'text-slate-900 font-bold' : 'text-emerald-500'}>{expressDelivery ? '+₹49' : 'Complimentary'}</span>
                   </div>
-                  <div className="flex justify-between text-3xl font-black text-slate-900 pt-6 border-t border-slate-200 tracking-tighter"><span>Total</span><span>₹{total}</span></div>
+                  <div className="flex justify-between text-4xl font-bold text-slate-900 pt-8 border-t border-white/60 tracking-tighter"><span>Total</span><span>₹{total}</span></div>
                 </div>
                 <button 
-                  className="w-full py-6 text-white rounded-[2rem] font-black flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:brightness-105 active:scale-95 transition-all text-base uppercase tracking-widest"
-                  style={{ backgroundColor: theme.primary, background: `linear-gradient(135deg, ${theme.primary}, ${theme.text})` }}
-                  onClick={() => { alert(`Secure Checkout for ₹${total}...`); setShowCart(false); }}
+                  className="w-full py-7 text-white rounded-[2.5rem] font-bold text-lg tracking-wide shadow-2xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-5"
+                  style={{ backgroundColor: theme.primary, background: `linear-gradient(135deg, ${theme.primary}, ${theme.text}dd)` }}
+                  onClick={() => { alert(`Securing Checkout for ₹${total}...`); setShowCart(false); }}
                 >
-                  {t.momkart.confirm} <ChevronRight size={24} />
+                  Confirm Checkout <ChevronRight size={28} />
                 </button>
+                <div className="flex items-center justify-center gap-3 opacity-40 grayscale pb-2">
+                   <ShieldCheck size={18} /> <span className="text-[10px] font-bold uppercase tracking-[0.25em]">AES-256 Encrypted Payment</span>
+                </div>
               </div>
             )}
           </div>

@@ -75,6 +75,17 @@ export const translations: any = {
       checkInTitle: "Gentle Check-in",
       checkInSub: "How are you feeling?",
       checkInFoot: "Your feelings are valid and safe here.",
+      triage: {
+        title: "AI Triage Assistance",
+        subtitle: "Confidential symptom guidance",
+        cta: "Begin Safe Check",
+        categories: {
+          mood: "Mood Shift",
+          anxiety: "Anxiety Spike",
+          sleep: "Sleep Disturbance",
+          physical: "Physical Concern"
+        }
+      },
       actions: {
         checkin: "Healing Check-in",
         checkinSub: "EPDS Screening",
@@ -287,6 +298,17 @@ export const translations: any = {
       checkInTitle: "कोमल चेक-इन",
       checkInSub: "आप कैसा महसूस कर रहे हैं?",
       checkInFoot: "आपकी भावनाएं यहां मान्य और सुरक्षित हैं।",
+      triage: {
+        title: "AI ट्राइएज सहायता",
+        subtitle: "गोपनीय लक्षण मार्गदर्शन",
+        cta: "सुरक्षित जांच शुरू करें",
+        categories: {
+          mood: "मूड परिवर्तन",
+          anxiety: "चिंता का बढ़ना",
+          sleep: "नींद में गड़बड़ी",
+          physical: "शारीरिक चिंता"
+        }
+      },
       actions: {
         checkin: "हीलिंग चेक-इन",
         checkinSub: "EPDS स्क्रीनिंग",
