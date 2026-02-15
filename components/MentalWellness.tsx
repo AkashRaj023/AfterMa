@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Brain, Heart, Edit3, Sparkles, MessageCircle, AlertTriangle, Phone, ShieldCheck, CheckSquare, Music, Star, ChevronRight, Activity, Zap, Moon } from 'lucide-react';
 import { EPDS_QUESTIONS, HELPLINES, STABILIZATION_TASKS, COLORS } from '../constants';
@@ -203,13 +202,14 @@ const MentalWellness: React.FC<MentalProps> = ({ profile }) => {
   );
 };
 
+// Fix: Add 'as any' to satisfy TypeScript overload requirements for React.cloneElement
 const MentalAction = ({ icon, title, subtitle, onClick, theme }: any) => (
   <button 
     onClick={onClick}
     className="flex flex-col items-center p-10 bg-white/50 backdrop-blur-xl border border-white/40 rounded-[3rem] hover:border-white shadow-sm hover:shadow-2xl transition-all duration-500 text-center group active:scale-[0.98]"
   >
     <div className="p-6 bg-slate-50 rounded-[1.75rem] mb-6 group-hover:bg-white group-hover:scale-110 group-hover:rotate-6 transition-all shadow-inner border border-transparent group-hover:border-slate-100">
-      {React.cloneElement(icon as React.ReactElement, { size: 32, strokeWidth: 2.5 })}
+      {React.cloneElement(icon as React.ReactElement, { size: 32, strokeWidth: 2.5 } as any)}
     </div>
     <span className="font-bold text-slate-900 text-xl mb-1.5 tracking-tight leading-none">{title}</span>
     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">{subtitle}</span>
