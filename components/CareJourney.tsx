@@ -6,7 +6,7 @@ import {
   Timer, Flame, Award, Heart, Download, Share2, FileText,
   Stethoscope, ShieldCheck, ChevronLeft, RefreshCw, Calculator,
   Sparkles, Baby, Search, X, Droplet, Ruler, Gauge, BarChart3,
-  CheckCircle, Target, Smile, Edit3, Moon, Pill
+  CheckCircle, Target, Smile, Edit3, Moon, Pill, Frown, Laugh
 } from 'lucide-react';
 import { UserProfile, RecoveryActivity, ExerciseLog, HealthLog } from '../types';
 import { COLORS } from '../constants';
@@ -223,19 +223,30 @@ const CareJourney: React.FC<CareJourneyProps> = ({
 
                   <div className="space-y-4">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Mood Profile</label>
-                    <div className="flex items-center justify-between p-5 bg-slate-50 border border-slate-100 rounded-2xl">
-                      <div className="flex gap-2">
-                        {[2, 5, 8].map(m => (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-slate-50 border border-slate-100 rounded-2xl gap-4">
+                      <div className="flex gap-3">
+                        {[
+                          { val: 2, icon: <Frown size={22} />, color: 'text-rose-500' },
+                          { val: 5, icon: <Smile size={22} />, color: 'text-amber-500' },
+                          { val: 8, icon: <Laugh size={22} />, color: 'text-emerald-500' }
+                        ].map(({ val, icon, color }) => (
                           <button 
-                            key={m}
-                            onClick={() => setQuickLog(p => ({...p, moodLevel: m}))}
-                            className={`p-2 rounded-xl transition-all ${quickLog.moodLevel === m ? 'bg-slate-900 text-white' : 'bg-white text-slate-300'}`}
+                            key={val}
+                            onClick={() => setQuickLog(p => ({...p, moodLevel: val}))}
+                            className={`w-12 h-12 rounded-2xl transition-all flex items-center justify-center border-2 ${
+                              quickLog.moodLevel === val 
+                                ? `bg-slate-900 border-slate-900 text-white shadow-xl scale-110` 
+                                : `bg-white border-slate-100 ${color} hover:border-slate-200 hover:scale-105`
+                            }`}
                           >
-                            <Smile size={20} />
+                            {icon}
                           </button>
                         ))}
                       </div>
-                      <span className="text-xs font-bold text-slate-600">{quickLog.moodLevel! > 7 ? 'Radiant' : quickLog.moodLevel! > 4 ? 'Balanced' : 'Low'}</span>
+                      <div className="flex flex-col items-start sm:items-end">
+                        <span className="text-xs font-bold text-slate-900">{quickLog.moodLevel! > 7 ? 'Radiant' : quickLog.moodLevel! > 4 ? 'Balanced' : 'Low'}</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Current State</span>
+                      </div>
                     </div>
                   </div>
                 </div>

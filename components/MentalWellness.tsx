@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Brain, Heart, Edit3, Sparkles, MessageCircle, AlertTriangle, Phone, ShieldCheck, 
   CheckSquare, Music, Star, ChevronRight, Activity, Zap, Moon, X, Stethoscope, 
-  Search, Shield, Gift, Smile, Send, Image as ImageIcon, Paperclip, Bot, User
+  Search, Shield, Gift, Smile, Send, Image as ImageIcon, Paperclip, Bot, User, Mic
 } from 'lucide-react';
 import { EPDS_QUESTIONS, HELPLINES, STABILIZATION_TASKS, COLORS } from '../constants';
 import { UserProfile, ChatMessage } from '../types';
@@ -201,6 +201,7 @@ const MentalWellness: React.FC<MentalProps> = ({ profile, messages, setMessages 
                      <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-3 text-slate-300">
                         <button className="hover:text-slate-900 transition-colors"><ImageIcon size={20} /></button>
                         <button className="hover:text-slate-900 transition-colors"><Paperclip size={20} /></button>
+                        <button className="hover:text-emerald-500 transition-colors"><Mic size={20} /></button>
                      </div>
                      <input 
                         type="text" 
@@ -208,7 +209,7 @@ const MentalWellness: React.FC<MentalProps> = ({ profile, messages, setMessages 
                         onChange={e => setInput(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleSendMessage(input)}
                         placeholder="Type your symptoms or questions here..." 
-                        className="w-full pl-24 pr-20 py-5 bg-slate-50 border border-slate-100 rounded-full font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 focus:bg-white transition-all shadow-inner"
+                        className="w-full pl-32 pr-20 py-5 bg-slate-50 border border-slate-100 rounded-full font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 focus:bg-white transition-all shadow-inner"
                      />
                      <button 
                         onClick={() => handleSendMessage(input)}
