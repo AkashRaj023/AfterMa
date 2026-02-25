@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { UserProfile, Appointment, CommunityCircle } from '../types';
+import { UserProfile, Appointment, CommunityCircle, VerificationData } from '../types';
 import { 
-  Users, Calendar, Heart, Stethoscope, Phone, ShieldCheck, Landmark, Globe, Star, Info, ChevronRight, MessageCircle, X, RotateCcw, ExternalLink, Zap, Shield, TrendingUp, Clock, CheckCircle2, Lock
+  Users, Calendar, Heart, Stethoscope, Phone, ShieldCheck, Landmark, Globe, Star, Info, ChevronRight, MessageCircle, X, RotateCcw, ExternalLink, Zap, Shield, TrendingUp, Clock, CheckCircle2, Lock, Plus, AlertCircle
 } from 'lucide-react';
 import { COLORS, HELPLINES, NGO_DATA, EXPERT_DATA } from '../constants';
 import { translations } from '../translations';
+import VerificationFlow from './VerificationFlow';
+import ExpertDashboard from './ExpertDashboard';
 
 interface CareConnectProps {
   profile: UserProfile;
+  setProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
   appointments: Appointment[];
   setAppointments: React.Dispatch<React.SetStateAction<Appointment[]>>;
   circles: CommunityCircle[];
@@ -23,13 +26,47 @@ const INSURANCE_PLANS = [
 ];
 
 const CareConnect: React.FC<CareConnectProps> = ({ 
-  profile, appointments, setAppointments, circles, setCircles, addNotification 
+  profile, setProfile, appointments, setAppointments, circles, setCircles, addNotification 
 }) => {
   const lang = profile.journeySettings.language || 'english';
   const t = translations[lang];
   const [activeSubTab, setActiveSubTab] = useState<'Community' | 'Experts' | 'NGOs' | 'Insurance' | 'MyBookings'>('Community');
   const [expertFilter, setExpertFilter] = useState<'Physiotherapy' | 'OB-GYN' | 'Lactation'>('Physiotherapy');
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationRole, setVerificationRole] = useState<'expert' | 'community_creator'>('expert');
   const theme = COLORS[profile.accent] || COLORS.PINK;
+
+  const isVerifiedExpert = profile.role === 'expert' && profile.verification?.status === 'verified';
+  const isVerifiedCreator = profile.role === 'community_creator' && profile.verification?.status === 'verified';
+  const isPending = profile.verification?.status === 'pending';
+
+  const handleVerificationComplete = (data: VerificationData) => {
+    setProfile(prev => ({
+      ...prev,
+      role: data.roleRequested,
+      verification: data
+    }));
+    setShowVerification(false);
+    addNotification("Application Submitted", "Our clinical board is reviewing your credentials. We'll notify you soon.");
+  };
+
+  const startVerification = (role: 'expert' | 'community_creator') => {
+    setVerificationRole(role);
+    setShowVerification(true);
+  };
+
+  // Mock admin approval for demo
+  const simulateApproval = () => {
+    setProfile(prev => ({
+      ...prev,
+      verification: { ...prev.verification!, status: 'verified' }
+    }));
+    addNotification("Account Verified", `Your status as a ${profile.role === 'expert' ? 'Healthcare Expert' : 'Community Creator'} is now active.`);
+  };
+
+  if (isVerifiedExpert) {
+    return <ExpertDashboard profile={profile} />;
+  }
 
   const handleRSVP = (id: string) => {
     setCircles(prev => prev.map(c => {
@@ -96,7 +133,27 @@ const CareConnect: React.FC<CareConnectProps> = ({
       </div>
 
       {/* Centered Structured Tabs Container */}
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center gap-6">
+        {isPending && (
+          <div className="w-full max-w-2xl p-6 bg-amber-50 border border-amber-100 rounded-[2rem] flex items-center justify-between gap-6 animate-in slide-in-from-top duration-500">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white rounded-xl shadow-sm text-amber-500">
+                <Clock size={20} />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-sm font-bold text-slate-900">Verification Pending</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Our board is reviewing your {profile.role === 'expert' ? 'credentials' : 'eligibility'}</p>
+              </div>
+            </div>
+            <button 
+              onClick={simulateApproval}
+              className="px-6 py-2.5 bg-amber-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg hover:brightness-105 active:scale-95 transition-all"
+            >
+              Simulate Approval
+            </button>
+          </div>
+        )}
+
         <div className="inline-flex gap-1.5 bg-white/95 backdrop-blur-md rounded-full p-1.5 shadow-sm border border-slate-100 sticky top-[64px] lg:top-[80px] z-30">
           <NavButton label={t.care.tabs.community} active={activeSubTab === 'Community'} onClick={() => setActiveSubTab('Community')} theme={theme} icon={<Users size={16} />} />
           <NavButton label={t.care.tabs.experts} active={activeSubTab === 'Experts'} onClick={() => setActiveSubTab('Experts')} theme={theme} icon={<Stethoscope size={16} />} />
@@ -108,7 +165,29 @@ const CareConnect: React.FC<CareConnectProps> = ({
 
       <div className="space-y-12">
         {activeSubTab === 'Community' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in duration-500">
+          <div className="space-y-10">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Sisterhood Circles</h3>
+                <p className="text-sm text-slate-400 font-medium italic">Safe spaces for peer support and shared experiences.</p>
+              </div>
+              {isVerifiedCreator ? (
+                <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl flex items-center gap-2 hover:scale-[1.02] transition-all">
+                  <Plus size={18} />
+                  <span>Create New Circle</span>
+                </button>
+              ) : !isPending && (
+                <button 
+                  onClick={() => startVerification('community_creator')}
+                  className="px-8 py-4 bg-white border border-slate-100 text-slate-900 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+                >
+                  <Users size={18} className="text-emerald-500" />
+                  <span>Start a Community</span>
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in duration-500">
             {circles.map(c => (
               <div key={c.id} className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col justify-between hover:translate-y-[-6px]">
                 <div className="space-y-6">
@@ -134,20 +213,32 @@ const CareConnect: React.FC<CareConnectProps> = ({
               </div>
             ))}
           </div>
-        )}
+        </div>
+      )}
 
         {activeSubTab === 'Experts' && (
           <div className="space-y-10 animate-in fade-in duration-500">
-             <div className="flex gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100 w-fit">
-                {['Physiotherapy', 'OB-GYN', 'Lactation'].map((cat) => (
-                   <button 
-                    key={cat}
-                    onClick={() => setExpertFilter(cat as any)}
-                    className={`px-8 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest transition-all ${expertFilter === cat ? 'bg-white shadow-md text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
-                   >
-                     {cat}
-                   </button>
-                ))}
+             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+               <div className="flex gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100 w-fit">
+                  {['Physiotherapy', 'OB-GYN', 'Lactation'].map((cat) => (
+                     <button 
+                      key={cat}
+                      onClick={() => setExpertFilter(cat as any)}
+                      className={`px-8 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest transition-all ${expertFilter === cat ? 'bg-white shadow-md text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+                     >
+                       {cat}
+                     </button>
+                  ))}
+               </div>
+               {!isVerifiedExpert && !isPending && (
+                 <button 
+                  onClick={() => startVerification('expert')}
+                  className="px-8 py-4 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+                 >
+                   <Stethoscope size={18} />
+                   <span>Join as Expert</span>
+                 </button>
+               )}
              </div>
 
              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -317,6 +408,15 @@ const CareConnect: React.FC<CareConnectProps> = ({
           </div>
         )}
       </div>
+
+      {showVerification && (
+        <VerificationFlow 
+          profile={profile}
+          initialRole={verificationRole}
+          onComplete={handleVerificationComplete}
+          onCancel={() => setShowVerification(false)}
+        />
+      )}
     </div>
   );
 };

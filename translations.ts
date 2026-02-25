@@ -11,7 +11,7 @@ export const translations: any = {
     nav: {
       dashboard: "Dashboard",
       physical: "Care Journey",
-      physicalPost: "Healing Journey",
+      physicalPost: "Care Journey",
       mental: "Mental Wellness",
       care: "Care Connect",
       momkart: "MomKart",
@@ -39,12 +39,12 @@ export const translations: any = {
     },
     physical: {
       title: "Care Journey",
-      titlePost: "Healing Journey",
+      titlePost: "Care Journey",
       nurture: "Nurture Phase",
       transition: "Birth Transition",
       healing: "Healing Phase",
       cycleTitle: "Cycle Tracking",
-      cycleTitlePre: "Symptom Log",
+      cycleTitlePre: "Period Log",
       reportTitle: "Health Summary"
     },
     mental: {
@@ -134,7 +134,7 @@ export const translations: any = {
     nav: {
       dashboard: "डैशबोर्ड",
       physical: "केयर जर्नी",
-      physicalPost: "हीलिंग जर्नी",
+      physicalPost: "केयर जर्नी",
       mental: "मानसिक स्वास्थ्य",
       care: "केयर कनेक्ट",
       momkart: "मॉमकार्ट",
@@ -161,12 +161,12 @@ export const translations: any = {
     },
     physical: {
       title: "केयर जर्नी",
-      titlePost: "हीलिंग जर्नी",
+      titlePost: "केयर जर्नी",
       nurture: "नर्चर चरण",
       transition: "बर्थ ट्रांजिशन",
       healing: "हीलिंग चरण",
       cycleTitle: "चक्र ट्रैकिंग",
-      cycleTitlePre: "लक्षण लॉग",
+      cycleTitlePre: "पीरियड लॉग",
       reportTitle: "स्वास्थ्य सारांश"
     },
     mental: {

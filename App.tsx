@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { AppView, UserProfile, HealthLog, RecoveryActivity, RecoveryPhase, Appointment, CommunityCircle, PeriodLog, MaternityStage } from './types';
+import { AppView, UserProfile, HealthLog, RecoveryActivity, RecoveryPhase, Appointment, CommunityCircle, PeriodLog, MaternityStage, UserRole, ChatMessage, ExerciseLog } from './types';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
-import PhysicalRecovery from './components/PhysicalRecovery';
+import CareJourney from './components/CareJourney';
 import MentalWellness from './components/MentalWellness';
 import Education from './components/Education';
 import Membership from './components/Membership';
@@ -12,25 +12,16 @@ import SOSOverlay from './components/SOSOverlay';
 import NotificationPanel from './components/NotificationPanel';
 import CareConnect from './components/CareConnect';
 import MomKart from './components/Store';
-import { Search, Bell, Menu } from 'lucide-react';
+import HealthLogModal from './components/HealthLogModal';
+import CaregiverView from './components/CaregiverView';
+import ExpertDashboard from './components/ExpertDashboard';
+import ExpertAnalytics from './components/ExpertAnalytics';
+import ExpertSettings from './components/ExpertSettings';
+import { Search, Bell, Menu, ShieldCheck } from 'lucide-react';
 import { RECOVERY_DATABASE, COLORS } from './constants';
 import { translations } from './translations';
 
 const App: React.FC = () => {
-  const [currentView, setView] = useState<AppView>('education');
-  const [showSOS, setShowSOS] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const lastClickRef = useRef<number>(0);
-  
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [circles, setCircles] = useState<CommunityCircle[]>([
-    { id: '1', name: 'New Moms Bonding', members: 124, description: 'Sharing the joys and struggles of the first few months.', isJoined: false },
-    { id: '2', name: 'Sleep Solutions', members: 89, description: 'Tips and support for the sleepless nights.', isJoined: false },
-    { id: '3', name: 'Emotional Overwhelm', members: 56, description: 'A safe space to talk about the harder days.', isJoined: false },
-  ]);
-
   const [profile, setProfile] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('afterma_profile_v4');
     if (saved) return JSON.parse(saved);
@@ -75,10 +66,33 @@ const App: React.FC = () => {
     };
   });
 
+  const [currentView, setView] = useState<AppView>(() => {
+    if (profile.authenticated && profile.role === 'expert' && profile.verification?.status === 'verified') {
+      return 'expert-dashboard';
+    }
+    return 'education';
+  });
+
+  const [showSOS, setShowSOS] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showLogModal, setShowLogModal] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const lastClickRef = useRef<number>(0);
+  
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [circles, setCircles] = useState<CommunityCircle[]>([
+    { id: '1', name: 'New Moms Bonding', members: 124, description: 'Sharing the joys and struggles of the first few months.', isJoined: false },
+    { id: '2', name: 'Sleep Solutions', members: 89, description: 'Tips and support for the sleepless nights.', isJoined: false },
+    { id: '3', name: 'Emotional Overwhelm', members: 56, description: 'A safe space to talk about the harder days.', isJoined: false },
+  ]);
+
   const lang = profile.journeySettings.language || 'english';
   const t = translations[lang];
 
   const [logs, setLogs] = useState<HealthLog[]>([]);
+  const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>([]);
+  const [triageMessages, setTriageMessages] = useState<ChatMessage[]>([]);
 
   useEffect(() => {
     localStorage.setItem('afterma_profile_v4', JSON.stringify(profile));
@@ -90,15 +104,29 @@ const App: React.FC = () => {
   }, [currentView]);
 
   const theme = COLORS[profile.accent] || COLORS.PINK;
+  const isExpert = profile.authenticated && profile.role === 'expert' && profile.verification?.status === 'verified';
 
   const addNotification = (title: string, text: string) => {
     setNotifications(prev => [{ id: Date.now().toString(), title, text, time: 'Just now' }, ...prev]);
   };
 
-  const handleLogin = () => {
-    setProfile(prev => ({ ...prev, name: "Aditi Sharma", authenticated: true, lastLoginDate: new Date().toISOString().split('T')[0] }));
-    setView('dashboard');
-    addNotification(`${t.common.welcome} Aditi`, `Welcome back to your care journey.`);
+  const handleLogin = (role: UserRole = 'mother') => {
+    setProfile(prev => ({ 
+      ...prev, 
+      name: role === 'expert' ? "Dr. Ananya Iyer" : "Aditi Sharma", 
+      authenticated: true, 
+      role: role,
+      verification: role === 'expert' ? { status: 'verified', roleRequested: 'expert' } : prev.verification,
+      lastLoginDate: new Date().toISOString().split('T')[0] 
+    }));
+    
+    if (role === 'expert') {
+      setView('expert-dashboard');
+    } else {
+      setView('dashboard');
+    }
+    
+    addNotification(`${t.common.welcome} ${role === 'expert' ? "Dr. Ananya" : "Aditi"}`, `Welcome back to your care journey.`);
   };
 
   const logout = () => {
@@ -130,6 +158,22 @@ const App: React.FC = () => {
       triggerSOS();
     }
     lastClickRef.current = currentTime;
+  };
+
+  const handleSaveLog = (newLog: HealthLog) => {
+    setLogs(prev => [...prev, newLog]);
+    setShowLogModal(false);
+    addNotification("Health Logged", "Your daily metrics have been securely recorded.");
+    
+    // Streak logic
+    const today = new Date().toISOString().split('T')[0];
+    if (profile.lastLoginDate !== today) {
+      setProfile(prev => ({
+        ...prev,
+        streakCount: prev.streakCount + 1,
+        lastLoginDate: today
+      }));
+    }
   };
 
   const filteredActivities = useMemo(() => {
@@ -169,16 +213,25 @@ const App: React.FC = () => {
       </div>
       
       <main className="flex-1 lg:ml-64 min-h-screen relative flex flex-col">
-        <header className="h-16 lg:h-20 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 flex items-center justify-between border-b border-gray-100 shadow-sm transition-all duration-300">
+        <header className="h-16 lg:h-20 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 flex items-center justify-between border-b border-slate-100 shadow-sm transition-all duration-300">
           <div className="flex items-center gap-3 lg:gap-6 flex-1 max-w-2xl">
             <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 lg:hidden text-gray-500 hover:bg-gray-100 rounded-lg"><Menu size={20} /></button>
-            <div className="relative w-full hidden sm:block">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
-                <Search className={`${profile.incognito ? 'text-purple-500' : 'text-gray-400'}`} size={16} />
+            {isExpert ? (
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                  <ShieldCheck size={18} />
+                </div>
+                <span className="text-xs font-black uppercase tracking-widest text-slate-900">Clinical Portal</span>
               </div>
-              <input type="text" placeholder={profile.incognito ? "GHOST Mode Active..." : t.common.searchPlaceholder} className={`w-full border rounded-full py-2 pl-10 pr-20 focus:outline-none focus:ring-2 transition-all text-sm ${profile.incognito ? 'bg-purple-50/50 border-purple-200 focus:ring-purple-100' : 'bg-white border-slate-200 focus:ring-pink-100 shadow-sm'}`} />
-              <button onClick={() => setProfile(p => ({...p, incognito: !p.incognito}))} className={`absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase px-2 py-1 rounded-full transition-all ${profile.incognito ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>GHOST</button>
-            </div>
+            ) : (
+              <div className="relative w-full hidden sm:block">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                  <Search className={`${profile.incognito ? 'text-purple-500' : 'text-gray-400'}`} size={16} />
+                </div>
+                <input type="text" placeholder={profile.incognito ? "GHOST Mode Active..." : t.common.searchPlaceholder} className={`w-full border rounded-full py-2 pl-10 pr-20 focus:outline-none focus:ring-2 transition-all text-sm ${profile.incognito ? 'bg-purple-50/50 border-purple-200 focus:ring-purple-100' : 'bg-white border-slate-200 focus:ring-pink-100 shadow-sm'}`} />
+                <button onClick={() => setProfile(p => ({...p, incognito: !p.incognito}))} className={`absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase px-2 py-1 rounded-full transition-all ${profile.incognito ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>GHOST</button>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-3 lg:gap-5 ml-4">
@@ -194,27 +247,54 @@ const App: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <button onClick={handleLogin} style={{ backgroundColor: theme.primary }} className="text-white px-5 py-2 rounded-full font-bold text-xs shadow-md hover:opacity-90 transition-all">{t.common.signIn}</button>
+              <div className="flex items-center gap-2 lg:gap-3">
+                <button 
+                  onClick={() => handleLogin('expert')} 
+                  className="hidden md:flex items-center gap-2 px-4 py-2 bg-[#10B981] text-white rounded-full font-bold text-[10px] uppercase tracking-widest shadow-md hover:opacity-90 transition-all active:scale-95"
+                >
+                  <ShieldCheck size={14} />
+                  Expert Login
+                </button>
+                <button 
+                  onClick={() => handleLogin('mother')} 
+                  style={{ backgroundColor: theme.primary }} 
+                  className="text-white px-5 py-2 rounded-full font-bold text-xs shadow-md hover:opacity-90 transition-all active:scale-95"
+                >
+                  {t.common.signIn}
+                </button>
+              </div>
             )}
           </div>
         </header>
 
         <div className="flex-1 overflow-x-hidden">
           <div className="max-w-7xl mx-auto p-4 lg:p-8 space-y-8">
-            {currentView === 'dashboard' && profile.authenticated && <Dashboard profile={profile} logs={logs} onAddLog={() => {}} />}
-            {currentView === 'physical' && profile.authenticated && <PhysicalRecovery profile={profile} setProfile={setProfile} onToggleActivity={toggleActivity} activities={filteredActivities} />}
-            {currentView === 'mental' && profile.authenticated && <MentalWellness profile={profile} />}
-            {currentView === 'education' && <Education profile={profile} />}
-            {currentView === 'momkart' && profile.authenticated && <MomKart profile={profile} />}
-            {currentView === 'membership' && <Membership profile={profile} setProfile={setProfile} />}
-            {currentView === 'profile' && profile.authenticated && <Settings profile={profile} setProfile={setProfile} />}
-            {currentView === 'care-connect' && profile.authenticated && <CareConnect profile={profile} appointments={appointments} setAppointments={setAppointments} circles={circles} setCircles={setCircles} addNotification={addNotification} />}
+            {/* Expert Views */}
+            {isExpert && currentView === 'expert-dashboard' && <ExpertDashboard profile={profile} />}
+            {isExpert && currentView === 'expert-analytics' && <ExpertAnalytics profile={profile} />}
+            {isExpert && currentView === 'expert-settings' && <ExpertSettings profile={profile} logout={logout} />}
+
+            {/* Mother Views - Restricted for Experts */}
+            {!isExpert && (
+              <>
+                {currentView === 'dashboard' && profile.authenticated && <Dashboard profile={profile} logs={logs} onAddLog={() => setShowLogModal(true)} />}
+                {currentView === 'physical' && profile.authenticated && <CareJourney profile={profile} setProfile={setProfile} onToggleActivity={toggleActivity} activities={filteredActivities} exerciseLogs={exerciseLogs} setExerciseLogs={setExerciseLogs} logs={logs} onAddLog={() => setShowLogModal(true)} />}
+                {currentView === 'mental' && profile.authenticated && <MentalWellness profile={profile} messages={triageMessages} setMessages={setTriageMessages} />}
+                {currentView === 'education' && <Education profile={profile} />}
+                {currentView === 'momkart' && profile.authenticated && <MomKart profile={profile} />}
+                {currentView === 'membership' && <Membership profile={profile} setProfile={setProfile} />}
+                {currentView === 'profile' && profile.authenticated && <Settings profile={profile} setProfile={setProfile} />}
+                {currentView === 'care-connect' && profile.authenticated && <CareConnect profile={profile} setProfile={setProfile} appointments={appointments} setAppointments={setAppointments} circles={circles} setCircles={setCircles} addNotification={addNotification} />}
+                {currentView === 'caregiver' && profile.authenticated && <CaregiverView profile={profile} logs={logs} />}
+              </>
+            )}
           </div>
         </div>
 
         {showNotifications && <NotificationPanel notifications={notifications} onClose={() => setShowNotifications(false)} onClear={() => setNotifications([])} />}
       </main>
       {showSOS && <SOSOverlay profile={profile} onClose={() => setShowSOS(false)} />}
+      {showLogModal && <HealthLogModal profile={profile} onClose={() => setShowLogModal(false)} onSave={handleSaveLog} />}
     </div>
   );
 };

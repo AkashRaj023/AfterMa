@@ -6,6 +6,18 @@ export type MaternityStage = 'TTC' | 'Pregnant-T1' | 'Pregnant-T2' | 'Pregnant-T
 export type RecoveryPace = 'gentle' | 'moderate';
 export type Language = 'english' | 'hindi';
 
+export type UserRole = 'mother' | 'caregiver' | 'expert' | 'community_creator';
+export type VerificationStatus = 'none' | 'pending' | 'verified' | 'rejected';
+
+export interface VerificationData {
+  status: VerificationStatus;
+  roleRequested: UserRole;
+  submittedAt?: number;
+  documents?: string[];
+  answers?: Record<string, string>;
+  specialization?: string;
+}
+
 export interface JourneySettings {
   pace: RecoveryPace;
   preferredTime: 'morning' | 'evening';
@@ -76,6 +88,23 @@ export interface PeriodLog {
   notes: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+  image?: string;
+}
+
+export interface ExerciseLog {
+  id: string;
+  activityId: string;
+  duration: number;
+  intensity: 'gentle' | 'moderate';
+  timestamp: number;
+  completed: boolean;
+}
+
 export interface UserProfile {
   name: string;
   age: number;
@@ -83,7 +112,7 @@ export interface UserProfile {
   deliveryType: DeliveryType;
   maternityStage: MaternityStage;
   authenticated: boolean;
-  role: 'mother' | 'caregiver';
+  role: UserRole;
   accent: ThemeAccent;
   incognito: boolean;
   medicalHistory: string;
@@ -101,6 +130,7 @@ export interface UserProfile {
   notifications: NotificationSettings;
   periodLogs: PeriodLog[];
   profilePicture?: string;
+  verification?: VerificationData;
 }
 
 export interface HealthLog {
@@ -115,6 +145,10 @@ export interface HealthLog {
   symptoms: string[];
   kegelCount: number;
   isSensitive?: boolean;
+  periodFlow?: 'Spotting' | 'Light' | 'Medium' | 'Heavy' | 'None';
+  isOvulating?: boolean;
+  crampsLevel?: number;
+  notes?: string;
 }
 
 export interface RecoveryActivity {
@@ -139,4 +173,13 @@ export type AppView =
   | 'momkart'
   | 'profile'
   | 'membership'
-  | 'caregiver';
+  | 'caregiver'
+  | 'expert-dashboard'
+  | 'expert-analytics'
+  | 'expert-settings';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}

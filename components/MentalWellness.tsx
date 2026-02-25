@@ -1,40 +1,79 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Brain, Heart, Edit3, Sparkles, MessageCircle, AlertTriangle, Phone, ShieldCheck, 
   CheckSquare, Music, Star, ChevronRight, Activity, Zap, Moon, X, Stethoscope, 
-  Search, Shield, Gift, Smile
+  Search, Shield, Gift, Smile, Send, Image as ImageIcon, Paperclip, Bot, User
 } from 'lucide-react';
 import { EPDS_QUESTIONS, HELPLINES, STABILIZATION_TASKS, COLORS } from '../constants';
-import { UserProfile } from '../types';
+import { UserProfile, ChatMessage } from '../types';
 import { translations } from '../translations';
 import { getTriageAnalysis } from '../services/geminiService';
 
 interface MentalProps {
   profile: UserProfile;
+  messages: ChatMessage[];
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
-const MentalWellness: React.FC<MentalProps> = ({ profile }) => {
+const MentalWellness: React.FC<MentalProps> = ({ profile, messages, setMessages }) => {
   const lang = profile.journeySettings.language || 'english';
   const t = translations[lang];
   const [showCheckin, setShowCheckin] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [showTriage, setShowTriage] = useState(false);
-  const [triageLoading, setTriageLoading] = useState(false);
-  const [triageResult, setTriageResult] = useState("");
-  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
   
-  // Ritual logic
   const [checkedRituals, setCheckedRituals] = useState<Record<number, boolean>>({});
   const [showReward, setShowReward] = useState(false);
 
   const theme = COLORS[profile.accent] || COLORS.PINK;
   const isPostpartum = profile.maternityStage === 'Postpartum';
 
-  const symptomsList = isPostpartum 
-    ? ['High Fever', 'Heavy Bleeding', 'Severe Breast Pain', 'Extreme Sadness', 'Leg Swelling', 'Vision Blurriness']
-    : ['Severe Nausea', 'Early Contractions', 'Headache', 'Reduced Movement', 'Spotting', 'Dizziness'];
+  const suggestions = isPostpartum 
+    ? ['Postpartum Anxiety', 'Lactation Issues', 'Sleep Deprivation', 'Mood Swings']
+    : ['Nausea Relief', 'Cramping in T1', 'Safe Exercises', 'Birth Planning'];
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSendMessage = async (text: string) => {
+    if (!text.trim()) return;
+    
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: text,
+      timestamp: Date.now()
+    };
+    
+    setMessages(prev => [...prev, userMsg]);
+    setInput("");
+    setIsTyping(true);
+
+    try {
+      // Modular AI service layer call
+      const response = await getTriageAnalysis([text], profile);
+      
+      const aiMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: response,
+        timestamp: Date.now()
+      };
+      setMessages(prev => [...prev, aiMsg]);
+    } catch (error) {
+      console.error("AI Triage Error:", error);
+    } finally {
+      setIsTyping(false);
+    }
+  };
 
   const handleAnswer = (index: number) => {
     const newAnswers = [...answers, index];
@@ -47,14 +86,6 @@ const MentalWellness: React.FC<MentalProps> = ({ profile }) => {
       setAnswers([]);
       alert("Self-reflection saved. You're doing great.");
     }
-  };
-
-  const handleTriage = async () => {
-    if (selectedSymptoms.length === 0) return;
-    setTriageLoading(true);
-    const result = await getTriageAnalysis(selectedSymptoms, profile);
-    setTriageResult(result);
-    setTriageLoading(false);
   };
 
   const toggleRitual = (idx: number) => {
@@ -98,48 +129,96 @@ const MentalWellness: React.FC<MentalProps> = ({ profile }) => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <MentalAction icon={<Heart className="text-rose-400" />} title={isPostpartum ? "EPDS Screening" : "Bonding Check-in"} subtitle="Guided Reflection" onClick={() => setShowCheckin(true)} theme={theme} />
-            <MentalAction icon={<Stethoscope className="text-emerald-400" />} title="AI Symptom Triage" subtitle="Clinical Logic" onClick={() => setShowTriage(true)} theme={theme} />
+            <MentalAction icon={<Stethoscope className="text-emerald-400" />} title="AI Triage" subtitle="Clinical Logic" onClick={() => setShowTriage(true)} theme={theme} />
             <MentalAction icon={<Sparkles className="text-amber-400" />} title="Grounding Loops" subtitle="Safe Audio" onClick={() => {}} theme={theme} />
             <MentalAction icon={<Edit3 className="text-indigo-400" />} title="Safe Journal" subtitle="Private Space" onClick={() => {}} theme={theme} />
           </div>
 
           {showTriage && (
-            <div className="fixed inset-0 z-[130] bg-white/95 backdrop-blur-xl p-8 lg:p-20 flex flex-col items-center animate-in zoom-in-95 duration-300">
-               <button onClick={() => {setShowTriage(false); setSelectedSymptoms([]); setTriageResult("");}} className="absolute top-10 right-10 p-4 text-slate-400 hover:text-slate-900 transition-colors"><X size={32} /></button>
-               <div className="max-w-3xl w-full space-y-10">
-                  <div className="text-center space-y-3">
-                    <div className="p-4 bg-emerald-50 text-emerald-500 rounded-3xl w-fit mx-auto shadow-inner mb-4"><Search size={32} /></div>
-                    <h3 className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">AI Clinical Triage</h3>
-                    <p className="text-slate-400 font-medium italic">Select any active symptoms for an immediate supportive assessment.</p>
+            <div className="fixed inset-0 z-[130] bg-white/95 backdrop-blur-xl flex flex-col animate-in slide-in-from-bottom duration-500">
+               <div className="h-20 border-b border-slate-100 flex items-center justify-between px-8 lg:px-12 shrink-0">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl"><Bot size={20} /></div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 leading-none">AfterMa AI Triage</h3>
+                      <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1">Clinical Support Active</p>
+                    </div>
                   </div>
+                  <button onClick={() => setShowTriage(false)} className="p-2 text-slate-300 hover:text-slate-900 transition-colors"><X size={24} /></button>
+               </div>
 
-                  {!triageResult ? (
-                    <div className="space-y-8 animate-in fade-in duration-500">
-                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                          {symptomsList.map(s => (
-                            <button key={s} onClick={() => setSelectedSymptoms(p => p.includes(s) ? p.filter(x => x !== s) : [...p, s])} className={`p-6 rounded-3xl border-2 transition-all font-bold text-xs uppercase tracking-widest text-center h-full flex flex-col items-center justify-center gap-2 ${selectedSymptoms.includes(s) ? 'bg-slate-900 border-slate-900 text-white shadow-xl' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-300'}`}>
+               <div className="flex-1 overflow-y-auto p-6 lg:p-12 space-y-8 scrollbar-hide" ref={scrollRef}>
+                  {messages.length === 0 && (
+                    <div className="max-w-2xl mx-auto text-center space-y-10 pt-10">
+                       <div className="space-y-4">
+                          <h4 className="text-2xl font-bold text-slate-900 tracking-tight">How are you feeling today?</h4>
+                          <p className="text-sm text-slate-400 font-medium italic">Describe your symptoms or pick a topic below for an immediate clinical assessment.</p>
+                       </div>
+                       <div className="grid grid-cols-2 gap-4">
+                          {suggestions.map(s => (
+                            <button key={s} onClick={() => handleSendMessage(s)} className="p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-xs font-bold text-slate-600 hover:bg-white hover:border-emerald-200 hover:shadow-lg transition-all text-center">
                                {s}
                             </button>
                           ))}
                        </div>
-                       <button onClick={handleTriage} disabled={selectedSymptoms.length === 0 || triageLoading} className="w-full py-6 rounded-full bg-slate-900 text-white font-bold text-sm uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all disabled:opacity-30 flex items-center justify-center gap-4">
-                          {triageLoading ? <div className="animate-spin h-5 w-5 border-2 border-white/20 border-t-white rounded-full" /> : <><Shield size={20} /> Analyze Now</>}
-                       </button>
                     </div>
-                  ) : (
-                    <div className="p-10 bg-slate-50 border border-slate-100 rounded-[3.5rem] space-y-8 animate-in slide-in-from-bottom duration-500">
-                       <div className="flex items-start gap-6">
-                          <div className="p-4 bg-white rounded-2xl shadow-sm border border-slate-50 text-emerald-500"><AlertTriangle size={24} /></div>
-                          <div className="space-y-4 prose prose-slate">
-                             <div className="text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">{triageResult}</div>
+                  )}
+
+                  {messages.map(msg => (
+                    <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                       <div className={`max-w-[85%] lg:max-w-[70%] flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                          <div className={`h-10 w-10 rounded-2xl shrink-0 flex items-center justify-center shadow-sm border ${msg.role === 'user' ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-100 text-emerald-500'}`}>
+                             {msg.role === 'user' ? <User size={18} /> : <Bot size={18} />}
+                          </div>
+                          <div className={`p-6 rounded-[2rem] text-sm leading-relaxed font-medium ${msg.role === 'user' ? 'bg-slate-900 text-white rounded-tr-none shadow-xl' : 'bg-slate-50 text-slate-700 rounded-tl-none border border-slate-100'}`}>
+                             {msg.content}
+                             <div className={`text-[8px] font-bold uppercase tracking-widest mt-3 opacity-40 ${msg.role === 'user' ? 'text-right' : ''}`}>
+                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                             </div>
                           </div>
                        </div>
-                       <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row gap-4">
-                          <button onClick={() => {setShowTriage(false); setSelectedSymptoms([]); setTriageResult("");}} className="flex-1 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-xs uppercase tracking-widest text-slate-500">Close Triage</button>
-                          <a href={`tel:${HELPLINES.india.number}`} className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold text-xs uppercase tracking-widest text-center shadow-lg shadow-rose-100">Contact Emergency OB-GYN</a>
+                    </div>
+                  ))}
+
+                  {isTyping && (
+                    <div className="flex justify-start animate-in fade-in duration-300">
+                       <div className="flex gap-4">
+                          <div className="h-10 w-10 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-emerald-500 shadow-sm">
+                             <Bot size={18} />
+                          </div>
+                          <div className="bg-slate-50 p-6 rounded-[2rem] rounded-tl-none border border-slate-100 flex gap-1.5">
+                             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce" />
+                             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce [animation-delay:200ms]" />
+                             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-bounce [animation-delay:400ms]" />
+                          </div>
                        </div>
                     </div>
                   )}
+               </div>
+
+               <div className="p-6 lg:p-10 border-t border-slate-100 bg-white shrink-0">
+                  <div className="max-w-4xl mx-auto relative">
+                     <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-3 text-slate-300">
+                        <button className="hover:text-slate-900 transition-colors"><ImageIcon size={20} /></button>
+                        <button className="hover:text-slate-900 transition-colors"><Paperclip size={20} /></button>
+                     </div>
+                     <input 
+                        type="text" 
+                        value={input}
+                        onChange={e => setInput(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleSendMessage(input)}
+                        placeholder="Type your symptoms or questions here..." 
+                        className="w-full pl-24 pr-20 py-5 bg-slate-50 border border-slate-100 rounded-full font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-100 focus:bg-white transition-all shadow-inner"
+                     />
+                     <button 
+                        onClick={() => handleSendMessage(input)}
+                        disabled={!input.trim() || isTyping}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 h-12 w-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
+                     >
+                        <Send size={18} />
+                     </button>
+                  </div>
+                  <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-6 opacity-60">AI-generated insights are for supportive guidance. For definitive clinical diagnosis, please consult your healthcare professional.</p>
                </div>
             </div>
           )}

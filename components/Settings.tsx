@@ -260,7 +260,7 @@ const Settings: React.FC<SettingsProps> = ({ profile, setProfile }) => {
           {activeTab === 'privacy' && (
             <div className="space-y-12 animate-in fade-in duration-500">
                <div className="pb-8 border-b border-slate-50 space-y-1.5">
-                 <h3 className="text-2xl font-bold text-slate-900 tracking-tight capitalize">Security & Circle of Trust</h3>
+                 <h3 className="text-2xl font-bold text-slate-900 tracking-tight capitalize">Privacy & Caregiver</h3>
                  <p className="text-sm font-medium text-slate-400 opacity-80 leading-relaxed italic">Manage access for your designated caregiver and emergency settings.</p>
                </div>
                

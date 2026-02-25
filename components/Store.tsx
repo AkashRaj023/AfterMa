@@ -51,6 +51,35 @@ const MomKart: React.FC<MomKartProps> = ({ profile }) => {
   const deliveryCharge = expressDelivery ? 49 : 0;
   const total = cartSubtotal + sgst + cgst + deliveryCharge;
 
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+
+    const options = {
+      key: "rzp_test_your_key_here", // Replace with actual key
+      amount: total * 100, // Amount in paise
+      currency: "INR",
+      name: "AfterMa Store",
+      description: "Maternal Care Essentials",
+      image: "https://picsum.photos/200",
+      handler: function (response: any) {
+        alert(`Payment Successful! ID: ${response.razorpay_payment_id}`);
+        setCart([]);
+        setShowCart(false);
+      },
+      prefill: {
+        name: profile.name,
+        email: "mom@example.com",
+        contact: profile.caregiver.contact || "9999999999",
+      },
+      theme: {
+        color: theme.primary,
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
   const filteredItems = activeCategory === 'All' ? STORE_ITEMS : STORE_ITEMS.filter(item => item.category === activeCategory);
 
   return (
@@ -171,7 +200,7 @@ const MomKart: React.FC<MomKartProps> = ({ profile }) => {
 
                 <button 
                   className="w-full py-5 bg-emerald-600 text-white rounded-3xl font-bold text-sm shadow-2xl hover:brightness-105 active:scale-95 transition-all flex items-center justify-center gap-3"
-                  onClick={() => { alert(`Processing Secure Transaction for ₹${total} via ${paymentMethod.toUpperCase()}...`); setCart([]); setShowCart(false); }}
+                  onClick={handleCheckout}
                 >
                   Confirm Order <ChevronRight size={18} />
                 </button>

@@ -2,7 +2,8 @@
 import React from 'react';
 import { 
   Home, Activity, Heart, Users, BookOpen, 
-  Settings, LogOut, UserCheck, Star, X, ShoppingBag
+  Settings, LogOut, UserCheck, Star, X, ShoppingBag,
+  LayoutDashboard, BarChart3, UserCog, ShieldCheck
 } from 'lucide-react';
 import { AppView, UserProfile } from '../types';
 import { COLORS, SLOGAN } from '../constants';
@@ -21,7 +22,13 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView, profile, 
   const lang = profile.journeySettings.language || 'english';
   const t = translations[lang];
   
-  const navItems = [
+  const isExpert = profile.role === 'expert' && profile.verification?.status === 'verified';
+
+  const navItems = isExpert ? [
+    { id: 'expert-dashboard', label: 'Clinical Dashboard', icon: LayoutDashboard, private: true },
+    { id: 'expert-analytics', label: 'Patient Analytics', icon: BarChart3, private: true },
+    { id: 'expert-settings', label: 'Portal Settings', icon: UserCog, private: true },
+  ] : [
     { id: 'dashboard', label: t.nav.dashboard, icon: Home, private: true },
     { id: 'physical', label: t.nav.physical, icon: Activity, private: true },
     { id: 'mental', label: t.nav.mental, icon: Heart, private: true },
@@ -32,7 +39,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView, profile, 
     { id: 'membership', label: t.nav.membership, icon: Star, private: true },
   ];
 
-  if (profile.role === 'caregiver') {
+  if (profile.role === 'caregiver' && !isExpert) {
     navItems.unshift({ id: 'caregiver', label: t.nav.caregiver, icon: UserCheck, private: true });
   }
 
