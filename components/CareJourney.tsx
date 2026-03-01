@@ -36,6 +36,29 @@ const CareJourney: React.FC<CareJourneyProps> = ({
   const lang = profile.journeySettings.language || 'english';
   const t = translations[lang];
   const [activeTab, setActiveTab] = useState<'Journey' | 'PeriodLog' | 'HealthSummary'>('Journey');
+  const [showGame, setShowGame] = useState(false);
+  const [gameScore, setGameScore] = useState(0);
+  const [gameTarget, setGameTarget] = useState('');
+  const [gameOptions, setGameOptions] = useState<string[]>([]);
+
+  const startSymptomGame = () => {
+    const symptoms = ['Cramps', 'Bloating', 'Fatigue', 'Mood Swings', 'Back Pain', 'Headache'];
+    const target = symptoms[Math.floor(Math.random() * symptoms.length)];
+    const options = [...symptoms].sort(() => Math.random() - 0.5);
+    setGameTarget(target);
+    setGameOptions(options);
+    setShowGame(true);
+  };
+
+  const handleGameGuess = (guess: string) => {
+    if (guess === gameTarget) {
+      setGameScore(s => s + 10);
+      alert("Correct! You're in tune with your body.");
+      startSymptomGame();
+    } else {
+      alert("Not quite, but every body is different! Try again.");
+    }
+  };
   const [selectedActivity, setSelectedActivity] = useState<RecoveryActivity | null>(null);
   const [timer, setTimer] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -73,10 +96,27 @@ const CareJourney: React.FC<CareJourneyProps> = ({
     };
   }, [isTimerRunning]);
 
+  const [sessionConfig, setSessionConfig] = useState({
+    intensity: 'Moderate',
+    duration: 15,
+    environment: 'Alone'
+  });
+
+  const recommendedIntensity = useMemo(() => {
+    if (sessionConfig.environment === 'Alone') return 'Light';
+    if (['With Partner', 'With Friend', 'With Family'].includes(sessionConfig.environment)) return 'Moderate';
+    return 'Strong';
+  }, [sessionConfig.environment]);
+
   const handleStartActivity = (activity: RecoveryActivity) => {
     setSelectedActivity(activity);
     setTimer(0);
-    setIsTimerRunning(true);
+    setIsTimerRunning(false); // Don't start immediately, let them configure
+    setSessionConfig({
+      intensity: profile.journeySettings.pace === 'gentle' ? 'Light' : 'Moderate',
+      duration: activity.duration,
+      environment: 'Alone'
+    });
   };
 
   const handleCompleteActivity = () => {
@@ -374,6 +414,50 @@ const CareJourney: React.FC<CareJourneyProps> = ({
                   </div>
                 </div>
               </div>
+
+              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
+                <div className="flex justify-between items-center">
+                  <div className="space-y-1">
+                    <h4 className="font-bold text-slate-900 tracking-tight">Body Awareness Game</h4>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">A moment of play</p>
+                  </div>
+                  <div className="p-2 bg-amber-50 text-amber-500 rounded-xl"><Sparkles size={18} /></div>
+                </div>
+                
+                {!showGame ? (
+                  <div className="text-center py-4 space-y-4">
+                     <p className="text-[10px] text-slate-500 font-medium leading-relaxed italic">Match the symptom to the feeling. A gentle way to stay connected.</p>
+                     <button 
+                       onClick={startSymptomGame}
+                       className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+                     >
+                       Start Playing
+                     </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6 animate-in zoom-in-95 duration-300">
+                     <div className="text-center space-y-2">
+                        <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">Find the match for:</p>
+                        <h4 className="text-xl font-black text-slate-900">{gameTarget}</h4>
+                     </div>
+                     <div className="grid grid-cols-2 gap-2">
+                        {gameOptions.map(opt => (
+                          <button 
+                            key={opt}
+                            onClick={() => handleGameGuess(opt)}
+                            className="py-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-600 hover:bg-white hover:border-slate-200 transition-all"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                     </div>
+                     <div className="flex justify-between items-center pt-4 border-t border-slate-50">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Score: {gameScore}</span>
+                        <button onClick={() => setShowGame(false)} className="text-[9px] font-bold text-rose-500 uppercase tracking-widest hover:underline">Quit</button>
+                     </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -464,29 +548,106 @@ const CareJourney: React.FC<CareJourneyProps> = ({
       )}
 
       {selectedActivity && (
-        <div className="fixed inset-0 z-[150] bg-slate-900/95 backdrop-blur-2xl flex items-center justify-center p-6 animate-in fade-in duration-500">
-           <div className="max-w-2xl w-full text-center space-y-12">
-              <div className="space-y-4">
-                 <span className="px-4 py-1.5 bg-white/10 text-white rounded-full font-bold text-[10px] uppercase tracking-widest border border-white/10">Active Session</span>
-                 <h3 className="text-4xl lg:text-6xl font-bold text-white tracking-tight">{selectedActivity.title}</h3>
-                 <p className="text-white/60 font-medium italic text-lg">{selectedActivity.description}</p>
-              </div>
-
-              <div className="relative h-64 w-64 lg:h-80 lg:w-80 mx-auto flex items-center justify-center">
-                 <div className="absolute inset-0 border-8 border-white/5 rounded-full" />
-                 <div className="absolute inset-0 border-8 border-emerald-500 rounded-full transition-all duration-1000" style={{ clipPath: `inset(0 ${100 - (timer % 60 / 60) * 100}% 0 0)` }} />
-                 <div className="text-6xl lg:text-8xl font-black text-white tracking-tighter tabular-nums">
-                    {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
+        <div className="fixed inset-0 z-[150] bg-slate-900/98 backdrop-blur-3xl flex items-center justify-center p-4 lg:p-12 animate-in fade-in duration-700 overflow-y-auto">
+           <div className="max-w-6xl w-full bg-white/5 rounded-[4rem] border border-white/10 overflow-hidden flex flex-col lg:flex-row shadow-2xl min-h-[80vh]">
+              {/* Left Panel: Exercise Content (Unmodified Logic) */}
+              <div className="flex-1 p-8 lg:p-16 flex flex-col justify-center items-center text-center space-y-12 border-b lg:border-b-0 lg:border-r border-white/10">
+                 <div className="space-y-4">
+                    <span className="px-4 py-1.5 bg-white/10 text-white rounded-full font-bold text-[10px] uppercase tracking-widest border border-white/10">Active Session</span>
+                    <h3 className="text-4xl lg:text-6xl font-bold text-white tracking-tight">{selectedActivity.title}</h3>
+                    <p className="text-white/60 font-medium italic text-lg">{selectedActivity.description}</p>
                  </div>
+
+                 <div className="relative h-64 w-64 lg:h-80 lg:w-80 mx-auto flex items-center justify-center">
+                    <div className="absolute inset-0 border-8 border-white/5 rounded-full" />
+                    <div className="absolute inset-0 border-8 border-emerald-500 rounded-full transition-all duration-1000" style={{ clipPath: `inset(0 ${100 - (timer % (sessionConfig.duration * 60) / (sessionConfig.duration * 60)) * 100}% 0 0)` }} />
+                    <div className="text-6xl lg:text-8xl font-black text-white tracking-tighter tabular-nums">
+                       {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
+                    </div>
+                 </div>
+
+                 <div className="flex gap-6 justify-center">
+                    <button onClick={() => setIsTimerRunning(!isTimerRunning)} className="h-20 w-20 bg-white text-slate-900 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all">
+                       {isTimerRunning ? <Lock size={32} /> : <Play size={32} className="ml-1" />}
+                    </button>
+                    <button onClick={handleCompleteActivity} className="px-10 py-5 bg-emerald-500 text-white rounded-full font-bold text-sm uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                       Complete Session
+                    </button>
+                 </div>
+                 
+                 <button onClick={() => setSelectedActivity(null)} className="text-white/40 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">Cancel Session</button>
               </div>
 
-              <div className="flex gap-6 justify-center">
-                 <button onClick={() => setIsTimerRunning(!isTimerRunning)} className="h-20 w-20 bg-white text-slate-900 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all">
-                    {isTimerRunning ? <Lock size={32} /> : <Play size={32} className="ml-1" />}
-                 </button>
-                 <button onClick={handleCompleteActivity} className="px-10 py-5 bg-emerald-500 text-white rounded-full font-bold text-sm uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all">
-                    Complete Session
-                 </button>
+              {/* Right Panel: Configuration Panel */}
+              <div className="w-full lg:w-[400px] bg-white/5 backdrop-blur-md p-8 lg:p-12 space-y-10 overflow-y-auto">
+                 <div className="space-y-2">
+                    <h4 className="text-xl font-bold text-white tracking-tight">Session Settings</h4>
+                    <p className="text-xs text-white/40 font-medium">Customize your recovery rhythm.</p>
+                 </div>
+
+                 <div className="space-y-6">
+                    <div className="space-y-3">
+                       <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Intensity</label>
+                       <div className="grid grid-cols-3 gap-2">
+                          {['Light', 'Moderate', 'Strong'].map(level => (
+                             <button 
+                                key={level}
+                                onClick={() => setSessionConfig(p => ({...p, intensity: level}))}
+                                className={`py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all ${sessionConfig.intensity === level ? 'bg-white text-slate-900 border-white' : 'bg-transparent text-white/60 border-white/10 hover:border-white/30'}`}
+                             >
+                                {level}
+                             </button>
+                          ))}
+                       </div>
+                    </div>
+
+                    <div className="space-y-3">
+                       <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Duration</label>
+                          <span className="text-xs font-bold text-white">{sessionConfig.duration}m</span>
+                       </div>
+                       <input 
+                          type="range" min="5" max="30" step="5"
+                          value={sessionConfig.duration}
+                          onChange={e => setSessionConfig(p => ({...p, duration: parseInt(e.target.value)}))}
+                          className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+                       />
+                    </div>
+
+                    <div className="space-y-3">
+                       <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Support Environment</label>
+                       <div className="grid grid-cols-2 gap-2">
+                          {['Alone', 'With Partner', 'With Friend', 'With Family', 'With Support Worker', 'In a Group'].map(env => (
+                             <button 
+                                key={env}
+                                onClick={() => setSessionConfig(p => ({...p, environment: env}))}
+                                className={`py-3 px-2 rounded-xl text-[9px] font-bold uppercase tracking-widest border transition-all leading-tight ${sessionConfig.environment === env ? 'bg-white text-slate-900 border-white' : 'bg-transparent text-white/60 border-white/10 hover:border-white/30'}`}
+                             >
+                                {env}
+                             </button>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-3">
+                    <div className="flex items-center gap-2 text-amber-400">
+                       <Sparkles size={14} />
+                       <span className="text-[10px] font-bold uppercase tracking-widest">Recommendation</span>
+                    </div>
+                    <p className="text-xs text-white/80 leading-relaxed">
+                       Based on your environment ({sessionConfig.environment}), a <span className="font-bold text-white">{recommendedIntensity}</span> intensity is recommended.
+                    </p>
+                    <p className="text-[10px] text-white/40 italic">
+                       Listen to your body's whispers before they become shouts. Stay aware of your breath.
+                    </p>
+                 </div>
+
+                 <div className="pt-6 border-t border-white/10">
+                    <p className="text-[9px] text-white/30 font-medium leading-relaxed uppercase tracking-wider text-center">
+                       Disclaimer: All suggestions are guidance only and not medical advice. Consult your OB-GYN for clinical clearance.
+                    </p>
+                 </div>
               </div>
            </div>
         </div>

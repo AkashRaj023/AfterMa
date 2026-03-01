@@ -5,7 +5,7 @@ import {
   Calendar, MessageCircle, Users, Activity, 
   Clock, ShieldCheck, ChevronRight, Search, 
   Video, FileText, Bell, Star, TrendingUp, 
-  CheckCircle2, AlertCircle, MoreHorizontal, Shield
+  CheckCircle2, AlertCircle, MoreHorizontal, Shield, Bot, HelpCircle
 } from 'lucide-react';
 import { COLORS } from '../constants';
 
@@ -77,7 +77,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({ profile }) => {
           <DashNavBtn active={activeTab === 'rooms'} onClick={() => setActiveTab('rooms')} icon={<Video size={18} />} label="Support Rooms" />
           <DashNavBtn active={activeTab === 'members'} onClick={() => setActiveTab('members')} icon={<Users size={18} />} label="My Members" />
           
-          <div className="pt-10">
+          <div className="pt-10 space-y-6">
             <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-4">
               <div className="flex items-center gap-3 text-slate-900 font-bold">
                 <TrendingUp size={18} className="text-emerald-500" />
@@ -90,6 +90,33 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({ profile }) => {
                 </div>
                 <div className="h-1.5 w-full bg-white rounded-full overflow-hidden shadow-inner">
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: '85%' }} />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-indigo-50 rounded-[2rem] border border-indigo-100 space-y-4 group relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 text-indigo-900 font-bold">
+                  <Bot size={18} className="text-indigo-500" />
+                  <span className="text-sm">AI Usage Rate</span>
+                </div>
+                <div className="relative group/tooltip">
+                  <HelpCircle size={14} className="text-indigo-300 cursor-help" />
+                  <div className="absolute bottom-full right-0 mb-2 w-48 p-3 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-xl opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none shadow-2xl z-50">
+                    Anonymized aggregate metrics. No patient-identifiable data is processed.
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-indigo-900">42%</span>
+                  <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">of sessions</span>
+                </div>
+                <p className="text-[10px] text-indigo-700 font-medium leading-relaxed italic">
+                  Referenced AI triage suggestions for clinical efficiency.
+                </p>
+                <div className="flex items-center gap-2 text-[9px] font-bold text-emerald-600 uppercase tracking-widest">
+                  <TrendingUp size={12} /> +12% this week
                 </div>
               </div>
             </div>

@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Brain, Heart, Edit3, Sparkles, MessageCircle, AlertTriangle, Phone, ShieldCheck, 
   CheckSquare, Music, Star, ChevronRight, Activity, Zap, Moon, X, Stethoscope, 
-  Search, Shield, Gift, Smile, Send, Image as ImageIcon, Paperclip, Bot, User, Mic
+  Search, Shield, Gift, Smile, Send, Image as ImageIcon, Paperclip, Bot, User, Mic,
+  Play, Film, Headphones, Volume2
 } from 'lucide-react';
 import { EPDS_QUESTIONS, HELPLINES, STABILIZATION_TASKS, COLORS } from '../constants';
 import { UserProfile, ChatMessage } from '../types';
@@ -14,15 +15,17 @@ interface MentalProps {
   profile: UserProfile;
   messages: ChatMessage[];
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  onOpenJournal: () => void;
 }
 
-const MentalWellness: React.FC<MentalProps> = ({ profile, messages, setMessages }) => {
+const MentalWellness: React.FC<MentalProps> = ({ profile, messages, setMessages, onOpenJournal }) => {
   const lang = profile.journeySettings.language || 'english';
   const t = translations[lang];
   const [showCheckin, setShowCheckin] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [showTriage, setShowTriage] = useState(false);
+  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -130,8 +133,8 @@ const MentalWellness: React.FC<MentalProps> = ({ profile, messages, setMessages 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <MentalAction icon={<Heart className="text-rose-400" />} title={isPostpartum ? "EPDS Screening" : "Bonding Check-in"} subtitle="Guided Reflection" onClick={() => setShowCheckin(true)} theme={theme} />
             <MentalAction icon={<Stethoscope className="text-emerald-400" />} title="AI Triage" subtitle="Clinical Logic" onClick={() => setShowTriage(true)} theme={theme} />
-            <MentalAction icon={<Sparkles className="text-amber-400" />} title="Grounding Loops" subtitle="Safe Audio" onClick={() => {}} theme={theme} />
-            <MentalAction icon={<Edit3 className="text-indigo-400" />} title="Safe Journal" subtitle="Private Space" onClick={() => {}} theme={theme} />
+            <MentalAction icon={<Sparkles className="text-amber-400" />} title="Grounding Loops" subtitle="Safe Audio" onClick={() => setShowMediaLibrary(true)} theme={theme} />
+            <MentalAction icon={<Edit3 className="text-indigo-400" />} title="Safe Journal" subtitle="Private Space" onClick={onOpenJournal} theme={theme} />
           </div>
 
           {showTriage && (
@@ -238,6 +241,104 @@ const MentalWellness: React.FC<MentalProps> = ({ profile, messages, setMessages 
                          {choice} <ChevronRight size={18} className="text-slate-200 group-hover:text-slate-900 transition-colors" />
                        </button>
                      ))}
+                  </div>
+               </div>
+            </div>
+          )}
+
+          {showMediaLibrary && (
+            <div className="fixed inset-0 z-[140] bg-white/95 backdrop-blur-2xl flex flex-col animate-in slide-in-from-bottom duration-700 overflow-hidden">
+               <div className="h-20 border-b border-slate-100 flex items-center justify-between px-8 lg:px-12 shrink-0">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl"><Music size={20} /></div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 leading-none">Grounding Library</h3>
+                      <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-1">Curated OTT Experience</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowMediaLibrary(false)} className="p-2 text-slate-300 hover:text-slate-900 transition-colors"><X size={24} /></button>
+               </div>
+               
+                <div className="flex-1 overflow-y-auto p-8 lg:p-12 space-y-20">
+                   <div className="space-y-8">
+                     <div className="flex items-center gap-4">
+                        <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl shadow-inner"><Headphones size={24} /></div>
+                        <div className="space-y-0.5">
+                          <h4 className="text-2xl font-black text-slate-900 tracking-tight">Audio Sanctuaries</h4>
+                          <p className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">Healing Frequencies</p>
+                        </div>
+                     </div>
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {[
+                          { title: "Ocean Breath", duration: "12m", mood: "Calm", img: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&q=80&w=400" },
+                          { title: "Forest Whisper", duration: "15m", mood: "Grounded", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400" },
+                          { title: "Morning Dew", duration: "8m", mood: "Fresh", img: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&q=80&w=400" }
+                        ].map((item, i) => (
+                          <div key={i} className="group cursor-pointer space-y-4">
+                             <div className="aspect-video rounded-[2rem] overflow-hidden relative shadow-lg">
+                                <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                                <div className="absolute bottom-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[8px] font-bold uppercase tracking-widest text-slate-900">{item.duration}</div>
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Play size={48} className="text-white drop-shadow-2xl" /></div>
+                             </div>
+                             <div className="flex justify-between items-center px-2">
+                                <div>
+                                  <h5 className="font-bold text-slate-900">{item.title}</h5>
+                                  <p className="text-[10px] text-amber-500 font-bold uppercase tracking-widest">{item.mood}</p>
+                                </div>
+                                <button className="p-2 bg-slate-50 rounded-full text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all"><ChevronRight size={16} /></button>
+                             </div>
+                          </div>
+                        ))}
+                     </div>
+                   </div>
+
+                   <div className="space-y-8">
+                     <div className="flex items-center gap-4">
+                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl shadow-inner"><Film size={24} /></div>
+                        <div className="space-y-0.5">
+                          <h4 className="text-2xl font-black text-slate-900 tracking-tight">Cinematic Comfort</h4>
+                          <p className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">Visual Grounding</p>
+                        </div>
+                     </div>
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {[
+                          { title: "Nature's Rhythm", duration: "45m", mood: "Peaceful", img: "https://images.unsplash.com/photo-1501854140801-50d01674aa3e?auto=format&fit=crop&q=80&w=400" },
+                          { title: "Starlit Journey", duration: "60m", mood: "Dreamy", img: "https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?auto=format&fit=crop&q=80&w=400" },
+                          { title: "Mountain Echo", duration: "30m", mood: "Majestic", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=400" }
+                        ].map((item, i) => (
+                          <div key={i} className="group cursor-pointer space-y-4">
+                             <div className="aspect-[16/9] rounded-[2rem] overflow-hidden relative shadow-lg">
+                                <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                                <div className="absolute top-4 left-4 px-3 py-1 bg-indigo-500/80 backdrop-blur-md rounded-full text-[8px] font-bold uppercase tracking-widest text-white">Movie</div>
+                                <div className="absolute bottom-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[8px] font-bold uppercase tracking-widest text-slate-900">{item.duration}</div>
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Play size={48} className="text-white drop-shadow-2xl" /></div>
+                             </div>
+                             <div className="flex justify-between items-center px-2">
+                                <div>
+                                  <h5 className="font-bold text-slate-900">{item.title}</h5>
+                                  <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">{item.mood}</p>
+                                </div>
+                                <button className="p-2 bg-slate-50 rounded-full text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all"><ChevronRight size={16} /></button>
+                             </div>
+                          </div>
+                        ))}
+                     </div>
+                   </div>
+
+                  <div className="p-10 bg-slate-900 rounded-[3rem] text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+                     <div className="relative z-10 space-y-4 max-w-md">
+                        <h4 className="text-2xl font-bold tracking-tight">Help us help others.</h4>
+                        <p className="text-sm text-slate-400 font-medium leading-relaxed">Your feedback anonymously helps us recommend the best healing loops for sisters in similar journeys.</p>
+                        <button className="px-8 py-3 bg-white text-slate-900 rounded-2xl font-bold text-xs shadow-xl hover:scale-105 transition-all">Take 1-min Survey</button>
+                     </div>
+                     <div className="relative z-10 flex -space-x-4">
+                        {[1,2,3,4].map(i => <div key={i} className="w-16 h-16 rounded-full border-4 border-slate-900 bg-slate-800 flex items-center justify-center text-xl">🧘‍♀️</div>)}
+                     </div>
+                     <div className="absolute top-[-50%] right-[-10%] opacity-10 pointer-events-none scale-[1.5]">
+                        <Sparkles size={200} />
+                     </div>
                   </div>
                </div>
             </div>

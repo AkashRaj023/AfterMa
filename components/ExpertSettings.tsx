@@ -64,6 +64,13 @@ const ExpertSettings: React.FC<ExpertSettingsProps> = ({ profile, logout }) => {
             <SettingsRow icon={<Bell size={18} />} label="Urgent Patient Alerts" value="Enabled" />
           </div>
         </section>
+
+        <button 
+          onClick={logout}
+          className="w-full py-6 bg-rose-50 text-rose-600 rounded-[3rem] border border-rose-100 font-black text-sm uppercase tracking-[0.2em] shadow-sm hover:bg-rose-100 transition-all flex items-center justify-center gap-3"
+        >
+          <LogOut size={20} /> Terminate Expert Session
+        </button>
       </div>
     </div>
   );

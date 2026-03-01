@@ -111,7 +111,13 @@ export const EXPERT_DATA = [
   { category: 'Lactation', name: 'Dr. Kavita Reddy', role: 'IBCLC Consultant', credentials: 'Certified Specialist', insight: 'Every latch is a lesson in patience and bonding.', price: '₹1000' },
   { category: 'Lactation', name: 'Sister Mary John', role: 'Breastfeeding Educator', credentials: 'RN, Certified Educator', insight: 'The right support makes all the difference in milk supply.', price: '₹800' },
   { category: 'Lactation', name: 'Dr. Aisha Khan', role: 'Pediatric Lactation Expert', credentials: 'MBBS, IBCLC', insight: 'Feeding is a dialogue between you and your baby.', price: '₹1200' },
-  { category: 'Lactation', name: 'Dr. Pooja Balan', role: 'Holistic Feeding Coach', credentials: 'Certified Consultant', insight: 'Nutrition and rest are the pillars of lactation.', price: '₹950' }
+  { category: 'Lactation', name: 'Dr. Pooja Balan', role: 'Holistic Feeding Coach', credentials: 'Certified Consultant', insight: 'Nutrition and rest are the pillars of lactation.', price: '₹950' },
+
+  // Mental Health (4)
+  { category: 'Mental Health', name: 'Dr. Anjali Deshmukh', role: 'Perinatal Psychiatrist', credentials: 'MD, NIMHANS Specialist', insight: 'Your mind needs as much care as your body during this transition.', price: '₹1800' },
+  { category: 'Mental Health', name: 'Dr. Sameera Khan', role: 'Clinical Psychologist', credentials: 'PhD, Postpartum Focus', insight: 'Acknowledging your feelings is the first step to emotional resilience.', price: '₹1400' },
+  { category: 'Mental Health', name: 'Dr. Vikram Sethi', role: 'Family Therapist', credentials: 'M.Phil, TISS Graduate', insight: 'Strong family bonds are the foundation of maternal wellness.', price: '₹1200' },
+  { category: 'Mental Health', name: 'Dr. Ritu Kapoor', role: 'Mindfulness Coach', credentials: 'MBSR Certified, MSc Psych', insight: 'Presence in the moment is a powerful tool for new mothers.', price: '₹1000' }
 ];
 
 export const NGO_DATA = [

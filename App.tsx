@@ -17,14 +17,21 @@ import CaregiverView from './components/CaregiverView';
 import ExpertDashboard from './components/ExpertDashboard';
 import ExpertAnalytics from './components/ExpertAnalytics';
 import ExpertSettings from './components/ExpertSettings';
+import Journal from './components/Journal';
+import SurveyCommunityData from './components/SurveyCommunityData';
+import SafeRecipes from './components/SafeRecipes';
 import { Search, Bell, Menu, ShieldCheck } from 'lucide-react';
 import { RECOVERY_DATABASE, COLORS } from './constants';
 import { translations } from './translations';
 
 const App: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('afterma_profile_v4');
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = localStorage.getItem('afterma_profile_v4');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error("Failed to parse profile from localStorage", e);
+    }
     return {
       name: "Guest",
       age: 28,
@@ -74,11 +81,15 @@ const App: React.FC = () => {
   });
 
   const [showSOS, setShowSOS] = useState(false);
+  const [sosConfirming, setSosConfirming] = useState(false);
+  const [showAadhaarVerify, setShowAadhaarVerify] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showLogModal, setShowLogModal] = useState(false);
+  const [showJournal, setShowJournal] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const lastClickRef = useRef<number>(0);
+  const sosTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [circles, setCircles] = useState<CommunityCircle[]>([
@@ -149,16 +160,28 @@ const App: React.FC = () => {
     });
   };
 
-  const triggerSOS = () => setShowSOS(true);
+  const triggerSOS = () => {
+    setShowSOS(true);
+    setSosConfirming(false);
+    if (sosTimerRef.current) clearTimeout(sosTimerRef.current);
+  };
 
   const handleSOSClick = () => {
-    const currentTime = Date.now();
-    const timeSinceLastClick = currentTime - lastClickRef.current;
-    if (timeSinceLastClick < 300) {
+    if (!sosConfirming) {
+      setSosConfirming(true);
+      sosTimerRef.current = setTimeout(() => {
+        setSosConfirming(false);
+      }, 2000);
+    } else {
       triggerSOS();
     }
-    lastClickRef.current = currentTime;
   };
+
+  useEffect(() => {
+    return () => {
+      if (sosTimerRef.current) clearTimeout(sosTimerRef.current);
+    };
+  }, []);
 
   const handleSaveLog = (newLog: HealthLog) => {
     setLogs(prev => [...prev, newLog]);
@@ -235,7 +258,17 @@ const App: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3 lg:gap-5 ml-4">
-            <button onClick={handleSOSClick} className="px-4 py-1.5 bg-[#EF4444] text-white rounded-full font-bold text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-lg shadow-red-100">{t.common.sos}</button>
+            <div className="relative group">
+              <button 
+                onClick={handleSOSClick} 
+                className={`px-4 py-1.5 rounded-full font-bold text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-lg ${sosConfirming ? 'bg-amber-400 text-black animate-pulse' : 'bg-[#F5C518] text-black shadow-amber-100'}`}
+              >
+                {sosConfirming ? 'Tap again to confirm SOS' : t.common.sos}
+              </button>
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-slate-900 text-white text-[8px] font-bold uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+                Your safety matters. Double tap to activate.
+              </div>
+            </div>
             {profile.authenticated ? (
               <div className="flex items-center gap-2 lg:gap-4">
                 <button onClick={() => setShowNotifications(!showNotifications)} className="p-2 text-gray-500 hover:bg-gray-50 rounded-full relative transition-colors">
@@ -277,15 +310,17 @@ const App: React.FC = () => {
             {/* Mother Views - Restricted for Experts */}
             {!isExpert && (
               <>
-                {currentView === 'dashboard' && profile.authenticated && <Dashboard profile={profile} logs={logs} onAddLog={() => setShowLogModal(true)} />}
+                {currentView === 'dashboard' && profile.authenticated && <Dashboard profile={profile} logs={logs} onAddLog={() => setShowLogModal(true)} setView={setView} />}
                 {currentView === 'physical' && profile.authenticated && <CareJourney profile={profile} setProfile={setProfile} onToggleActivity={toggleActivity} activities={filteredActivities} exerciseLogs={exerciseLogs} setExerciseLogs={setExerciseLogs} logs={logs} onAddLog={() => setShowLogModal(true)} />}
-                {currentView === 'mental' && profile.authenticated && <MentalWellness profile={profile} messages={triageMessages} setMessages={setTriageMessages} />}
+                {currentView === 'mental' && profile.authenticated && <MentalWellness profile={profile} messages={triageMessages} setMessages={setTriageMessages} onOpenJournal={() => setShowJournal(true)} />}
                 {currentView === 'education' && <Education profile={profile} />}
                 {currentView === 'momkart' && profile.authenticated && <MomKart profile={profile} />}
                 {currentView === 'membership' && <Membership profile={profile} setProfile={setProfile} />}
                 {currentView === 'profile' && profile.authenticated && <Settings profile={profile} setProfile={setProfile} />}
                 {currentView === 'care-connect' && profile.authenticated && <CareConnect profile={profile} setProfile={setProfile} appointments={appointments} setAppointments={setAppointments} circles={circles} setCircles={setCircles} addNotification={addNotification} />}
                 {currentView === 'caregiver' && profile.authenticated && <CaregiverView profile={profile} logs={logs} />}
+                {currentView === 'community-wisdom' && <SurveyCommunityData profile={profile} />}
+                {currentView === 'recipes' && <SafeRecipes profile={profile} />}
               </>
             )}
           </div>
@@ -295,6 +330,7 @@ const App: React.FC = () => {
       </main>
       {showSOS && <SOSOverlay profile={profile} onClose={() => setShowSOS(false)} />}
       {showLogModal && <HealthLogModal profile={profile} onClose={() => setShowLogModal(false)} onSave={handleSaveLog} />}
+      {showJournal && <Journal profile={profile} onClose={() => setShowJournal(false)} />}
     </div>
   );
 };

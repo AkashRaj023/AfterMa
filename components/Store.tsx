@@ -127,7 +127,16 @@ const MomKart: React.FC<MomKartProps> = ({ profile }) => {
             <div key={item.id} className="bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-[0_25px_60px_rgba(0,0,0,0.04)] transition-all duration-500 group flex flex-col h-full overflow-hidden relative hover:translate-y-[-6px]">
               <div className="relative aspect-[4/5] bg-slate-50/30 overflow-hidden">
                 <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-in-out" />
-                <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm border border-white/40"><Star size={11} className="text-amber-400 fill-amber-400" /><span className="text-[10px] font-bold text-slate-800">{item.rating}</span></div>
+                <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm border border-white/40 z-20"><Star size={11} className="text-amber-400 fill-amber-400" /><span className="text-[10px] font-bold text-slate-800">{item.rating}</span></div>
+                
+                {/* Animated Hover Description */}
+                <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm p-8 flex flex-col justify-center items-center text-center opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0 z-10">
+                   <div className="p-3 bg-white/10 rounded-2xl mb-4"><Sparkles size={24} className="text-emerald-400" /></div>
+                   <p className="text-white text-xs font-medium leading-relaxed italic">"{item.description}"</p>
+                   <div className="mt-6 flex items-center gap-2 text-[8px] font-bold text-emerald-400 uppercase tracking-widest">
+                      <ShieldCheck size={12} /> Clinical Grade Verified
+                   </div>
+                </div>
               </div>
               <div className="p-7 flex-1 flex flex-col justify-between">
                 <div className="space-y-2.5">

@@ -273,7 +273,34 @@ const Settings: React.FC<SettingsProps> = ({ profile, setProfile }) => {
                      
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <Field label="Caregiver Name" value={profile.caregiver.name} onChange={v => updateCaregiver({ name: v })} />
-                        <Field label="Relationship" value={profile.caregiver.relationship} onChange={v => updateCaregiver({ relationship: v })} />
+                        <div className="space-y-3">
+                          <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.25em] ml-2">Your relationship to the person you're supporting</label>
+                          <select 
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-5 font-bold text-slate-800 focus:outline-none focus:ring-4 transition-all shadow-inner text-sm focus:bg-white appearance-none cursor-pointer"
+                            value={profile.caregiver.relationship}
+                            onChange={e => updateCaregiver({ relationship: e.target.value })}
+                          >
+                            <option value="">Select relationship...</option>
+                            <option value="Partner">Partner</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Best Friend">Best Friend</option>
+                            <option value="Close Friend">Close Friend</option>
+                            <option value="Mother">Mother</option>
+                            <option value="Father">Father</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Extended Family">Extended Family</option>
+                            <option value="Support Worker / Professional Carer">Support Worker / Professional Carer</option>
+                            <option value="Other">Other</option>
+                          </select>
+                          {profile.caregiver.relationship === 'Other' && (
+                            <input 
+                              type="text" 
+                              placeholder="Please specify..." 
+                              className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-5 font-bold text-slate-800 focus:outline-none focus:ring-4 transition-all shadow-inner text-sm focus:bg-white mt-2"
+                              onChange={e => updateCaregiver({ relationship: e.target.value })}
+                            />
+                          )}
+                        </div>
                         <Field label="Emergency Contact Number" value={profile.caregiver.contact} onChange={v => updateCaregiver({ contact: v })} />
                      </div>
 

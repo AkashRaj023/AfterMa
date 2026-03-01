@@ -2,12 +2,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Droplet, Moon, Pill, TrendingUp, AlertCircle, 
-  CheckCircle2, Plus, Calendar as CalIcon, Activity,
+  CheckCircle2, Plus, Calendar, Activity,
   Leaf, Bell, X, Zap, ArrowRight, Star, Play, Camera, ShieldCheck,
-  ChevronLeft, ChevronRight, Baby, Heart, Sparkles, Target, Ruler, Gauge, BarChart3, Download, Smile, Calendar, MessageSquare, Edit3
+  ChevronLeft, ChevronRight, Baby, Heart, Sparkles, Target, Ruler, Gauge, BarChart3, Download, Smile, MessageSquare, Edit3
 } from 'lucide-react';
 import { 
-  ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, Line
+  ResponsiveContainer, ComposedChart, Area, Line, CartesianGrid, XAxis, YAxis, Tooltip
 } from 'recharts';
 import { UserProfile, HealthLog } from '../types';
 import { getDailyInspiration } from '../services/geminiService';
@@ -18,9 +18,10 @@ interface DashboardProps {
   profile: UserProfile;
   logs: HealthLog[];
   onAddLog: () => void;
+  setView: (view: any) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ profile, logs, onAddLog }) => {
+const Dashboard: React.FC<DashboardProps> = ({ profile, logs, onAddLog, setView }) => {
   const lang = profile.journeySettings.language || 'english';
   const t = translations[lang];
   const [inspiration, setInspiration] = useState(t.dashboard.inspiration);
@@ -161,7 +162,7 @@ const Dashboard: React.FC<DashboardProps> = ({ profile, logs, onAddLog }) => {
           <div className="bg-white/70 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/60 shadow-sm flex flex-col justify-between">
             <div className="flex justify-between items-center mb-6">
               <h4 className="font-bold text-slate-900 tracking-tight">Due Date Calendar</h4>
-              <CalIcon size={20} className="text-slate-300" />
+              <Calendar size={20} className="text-slate-300" />
             </div>
             <div className="grid grid-cols-7 gap-2 text-center">
               {['S','M','T','W','T','F','S'].map((d, i) => <span key={`${d}-${i}`} className="text-[10px] font-bold text-slate-300">{d}</span>)}
@@ -219,13 +220,14 @@ const Dashboard: React.FC<DashboardProps> = ({ profile, logs, onAddLog }) => {
           <div className="mb-8 lg:mb-12"><h3 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">{t.dashboard.healingPulse}</h3><p className="text-sm lg:text-base text-slate-400 font-medium opacity-80 mt-1">{t.dashboard.healingPulseSub}</p></div>
           <div className="h-56 lg:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
+              <ComposedChart data={chartData}>
                 <defs><linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={theme.primary} stopOpacity={0.2}/><stop offset="95%" stopColor={theme.primary} stopOpacity={0}/></linearGradient></defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
                 <XAxis dataKey="time" hide /><YAxis hide domain={[0, 10]} />
                 <Tooltip contentStyle={{ borderRadius: '24px', border: 'none', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }} />
-                <Area type="monotone" dataKey="mood" stroke={theme.primary} strokeWidth={4} fillOpacity={1} fill="url(#colorMood)" /><Line type="monotone" dataKey="pain" stroke="#94A3B8" strokeWidth={2} strokeDasharray="6 6" />
-              </AreaChart>
+                <Area type="monotone" dataKey="mood" stroke={theme.primary} strokeWidth={4} fillOpacity={1} fill="url(#colorMood)" />
+                <Line type="monotone" dataKey="pain" stroke="#94A3B8" strokeWidth={2} strokeDasharray="6 6" dot={false} />
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
@@ -244,7 +246,12 @@ const Dashboard: React.FC<DashboardProps> = ({ profile, logs, onAddLog }) => {
                 </div>
               ))}
           </div>
-          <button className="w-full py-5 border-2 border-dashed border-slate-200 rounded-3xl font-bold text-sm text-slate-500 hover:border-emerald-200 hover:text-emerald-600 transition-all active:scale-95">{t.dashboard.recipes}</button>
+          <button 
+            onClick={() => setView('recipes')}
+            className="w-full py-5 border-2 border-dashed border-slate-200 rounded-3xl font-bold text-sm text-slate-500 hover:border-emerald-200 hover:text-emerald-600 transition-all active:scale-95"
+          >
+            {t.dashboard.recipes}
+          </button>
         </div>
       </div>
     </div>

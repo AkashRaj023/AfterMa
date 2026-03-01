@@ -5,7 +5,7 @@ export const translations: any = {
       signOut: "Sign Out",
       sos: "Double tap for SOS",
       searchPlaceholder: "Safe Search...",
-      welcome: "Pranam",
+      welcome: "Namaste",
       close: "Close"
     },
     nav: {
@@ -152,6 +152,7 @@ export const translations: any = {
       healingPulse: "हीलिंग पल्स",
       healingPulseSub: "पिछले 7 दिनों में आपकी रिकवरी का रुझान",
       warmNutrition: "गर्म पोषण",
+      recipes: "सुरक्षित व्यंजनों की खोज करें",
       stats: {
         hydration: "जलयोजन",
         rest: "आराम",
@@ -169,10 +170,46 @@ export const translations: any = {
       cycleTitlePre: "पीरियड लॉग",
       reportTitle: "स्वास्थ्य सारांश"
     },
+    education: {
+      title: "लर्निंग सेंटर",
+      subtitle: "आपकी अनूठी मातृत्व यात्रा के लिए सत्यापित जानकारी।",
+      quickLinks: {
+        guides: "गाइड",
+        videos: "वीडियो",
+        tips: "विशेषज्ञ युक्तियाँ",
+        safety: "सुरक्षा"
+      },
+      newsletterTitle: "आपके लिए क्यूरेट किया गया",
+      newsletterSub: "मातृ कल्याण में नवीनतम",
+      archive: "संग्रह देखें",
+      govtTitle: "सरकारी योजनाएं",
+      govtSub: "सार्वजनिक लाभ",
+      latestResources: "नवीनतम संसाधन",
+      read: "मिनट पढ़ें"
+    },
     mental: {
       subtitle: "अपनी भावनाओं को सुरक्षित रूप से साझा करें।",
       ritualTitle: "दैनिक हीलिंग अनुष्ठान",
       ritualReward: "अपना ख्याल रखने के लिए एक प्यारा सा हग!"
+    },
+    care: {
+      title: "केयर कनेक्ट",
+      subtitle: "प्रमाणित मातृ विशेषज्ञता और साथियों के समर्थन के लिए आपका सेतु।",
+      helpline: "आपातकालीन हेल्पलाइन",
+      tabs: {
+        community: "सिस्टर्स सर्कल्स",
+        experts: "विशेषज्ञ",
+        ngo: "NGO सहायता",
+        insurance: "बीमा योजनाएं",
+        sessions: "मेरे सत्र"
+      },
+      community: {
+        sistersJoined: "बहनें शामिल हुईं",
+        joinSisters: "सिस्टर सर्कल में शामिल हों"
+      },
+      experts: {
+        book: "सत्र बुक करें"
+      }
     },
     settings: {
       tabs: {
@@ -182,12 +219,23 @@ export const translations: any = {
         notifications: "सूचनाएं",
         privacy: "गोपनीयता"
       },
+      journey: {
+        title: "यात्रा विन्यास",
+        commitmentTitle: "दैनिक प्रतिबद्धता"
+      },
       fields: {
         name: "पूरा नाम",
         age: "आयु",
         medicalHistory: "चिकित्सा इतिहास",
         allergies: "एलर्जी",
         language: "भाषा सेटिंग्स"
+      },
+      stages: {
+        ttc: "गर्भधारण की कोशिश",
+        t1: "गर्भवती - पहली तिमाही",
+        t2: "गर्भवती - दूसरी तिमाही",
+        t3: "गर्भवती - तीसरी तिमाही",
+        post: "प्रसवोत्तर रिकवरी"
       },
       languages: {
         en: "English (GLOBAL)",

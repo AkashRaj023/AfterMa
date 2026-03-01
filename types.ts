@@ -174,6 +174,8 @@ export type AppView =
   | 'profile'
   | 'membership'
   | 'caregiver'
+  | 'community-wisdom'
+  | 'recipes'
   | 'expert-dashboard'
   | 'expert-analytics'
   | 'expert-settings';

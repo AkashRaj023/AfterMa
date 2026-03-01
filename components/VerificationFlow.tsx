@@ -22,7 +22,13 @@ const VerificationFlow: React.FC<VerificationFlowProps> = ({ profile, onComplete
     roleRequested: initialRole,
     status: 'pending',
     answers: {},
-    specialization: ''
+    specialization: '',
+    licenseNumber: '',
+    documents: {
+      medicalCertificate: null,
+      governmentId: null,
+      practiceLicense: null
+    }
   });
 
   const theme = COLORS[profile.accent] || COLORS.PINK;
@@ -98,30 +104,56 @@ const VerificationFlow: React.FC<VerificationFlowProps> = ({ profile, onComplete
           {step === 2 && isExpert && (
             <div className="space-y-8 animate-in slide-in-from-right duration-500">
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Specialization</label>
-                  <select 
-                    value={formData.specialization}
-                    onChange={e => setFormData(p => ({...p, specialization: e.target.value}))}
-                    className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-emerald-100 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="">Select your field...</option>
-                    <option value="Physiotherapy">Physiotherapy</option>
-                    <option value="OB-GYN">OB-GYN</option>
-                    <option value="Lactation">Lactation Consultant</option>
-                    <option value="Mental Health">Mental Health Specialist</option>
-                  </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Specialization</label>
+                    <select 
+                      value={formData.specialization}
+                      onChange={e => setFormData(p => ({...p, specialization: e.target.value}))}
+                      className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-emerald-100 transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="">Select your field...</option>
+                      <option value="Physiotherapy">Physiotherapy</option>
+                      <option value="OB-GYN">OB-GYN</option>
+                      <option value="Lactation">Lactation Consultant</option>
+                      <option value="Mental Health">Mental Health Specialist</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">License Number</label>
+                    <input 
+                      type="text"
+                      value={formData.licenseNumber}
+                      onChange={e => setFormData(p => ({...p, licenseNumber: e.target.value}))}
+                      placeholder="Enter registration number..."
+                      className="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Professional License / ID</label>
-                  <div className="border-2 border-dashed border-slate-100 rounded-3xl p-10 flex flex-col items-center justify-center text-center space-y-4 hover:border-emerald-200 transition-all cursor-pointer bg-slate-50/30">
-                    <Upload size={32} className="text-slate-300" />
-                    <div className="space-y-1">
-                      <p className="text-sm font-bold text-slate-900">Upload Credentials</p>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-widest">PDF, JPG or PNG (Max 5MB)</p>
-                    </div>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <UploadBox 
+                    label="Medical Certificate" 
+                    uploaded={!!formData.documents?.medicalCertificate} 
+                    onClick={() => setFormData(p => ({...p, documents: {...p.documents!, medicalCertificate: 'uploaded'}}))}
+                  />
+                  <UploadBox 
+                    label="Government ID" 
+                    uploaded={!!formData.documents?.governmentId} 
+                    onClick={() => setFormData(p => ({...p, documents: {...p.documents!, governmentId: 'uploaded'}}))}
+                  />
+                  <UploadBox 
+                    label="Practice License" 
+                    uploaded={!!formData.documents?.practiceLicense} 
+                    onClick={() => setFormData(p => ({...p, documents: {...p.documents!, practiceLicense: 'uploaded'}}))}
+                  />
+                </div>
+                
+                <div className="p-6 bg-blue-50 rounded-2xl border border-blue-100 flex gap-4">
+                  <Shield size={20} className="text-blue-500 shrink-0" />
+                  <p className="text-[10px] text-blue-700 font-medium leading-relaxed">
+                    Your data is encrypted at rest and only accessible to our verification team. We do not share your credentials with third parties.
+                  </p>
                 </div>
               </div>
             </div>
@@ -236,6 +268,21 @@ const VerificationFlow: React.FC<VerificationFlowProps> = ({ profile, onComplete
     </div>
   );
 };
+
+const UploadBox = ({ label, uploaded, onClick }: any) => (
+  <button 
+    onClick={onClick}
+    className={`p-6 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center text-center gap-3 ${
+      uploaded ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-slate-50 border-slate-100 text-slate-300 hover:border-emerald-100'
+    }`}
+  >
+    {uploaded ? <FileCheck size={24} /> : <Upload size={24} />}
+    <div className="space-y-0.5">
+      <p className="text-[10px] font-bold uppercase tracking-widest">{label}</p>
+      <p className="text-[8px] opacity-60">{uploaded ? 'Uploaded' : 'Click to upload'}</p>
+    </div>
+  </button>
+);
 
 const RoleCard = ({ active, onClick, icon, title, description, theme }: any) => (
   <button 
